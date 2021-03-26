@@ -1,0 +1,23 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31025.194
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "Pixelate", "Pixelate.pyproj", "{CA71F4BC-69AE-4CF4-A7FA-3D8AF90D297E}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{CA71F4BC-69AE-4CF4-A7FA-3D8AF90D297E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CA71F4BC-69AE-4CF4-A7FA-3D8AF90D297E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {7F58F9DB-FAF5-4172-A676-772AC606CFB4}
+	EndGlobalSection
+EndGlobal

@@ -26,7 +26,7 @@ from collections import Counter
 class Pixelate():
     @classmethod
     def __init__(cls, n_rows, n_cols, env_name, aruco_dict, aruco_id):
-        """constructor
+        """initializes and computes the essential variables, interpretation_dict, color_dict, size of the arena, size of the additional area to remove and initial coordinate of the bot
 
         Parameters
         ----------
@@ -46,9 +46,9 @@ class Pixelate():
         TypeError
             if parameters passed are not of specified type
         ValueError
-            if n_rows or n_cols is zero or aruco_dict takes value other than specified values
+            if n_rows or n_cols is zero, aruco_dict takes value other than specified values or region of interest i.e., arena lies outside the cropped image
         ConnectionRefusedError
-            if tried to connect to same rendering mode again"""
+            if tried to connect to the same rendering mode again"""
 
         if not isinstance(n_rows, int):
             raise TypeError("n_rows must be an int instance")
@@ -88,41 +88,102 @@ class Pixelate():
         cls.interpretation_dict = {"Black": 0, "White": 1, "Green": 2, "Yellow": 3, "Red": 4, "Pink": 5, "Cyan": 7, "Blue Square": 11, "Blue Circle": 13,
                                     "Blue Triangle 0": 17, "Blue Triangle 90": 19, "Blue Triangle 180": 23, "Blue Triangle 270": 29}
         
-        cls.arena = np.zeros([n_rows, n_cols], dtype = np.int)
-        cls.Pre_Compute()
+        print("Instructions:")
+        print("Crop The Image To Arena Size")
+
+        img = cls.Image()
+        r = cv2.selectROI(img)
+        cv2.destroyAllWindows()
+
+        crop = img[int(r[1]):int(r[1] + r[3]), int(r[0]):int(r[0] + r[2])]
+        cls.size = np.array([crop.shape[1], crop.shape[0]], dtype = np.int)
+        cls.thickness = np.array([r[0], r[1]], dtype = np.int)
+
+        cls.color_dict = {}
+
+        for color in ["White", "Green", "Yellow", "Red", "Pink", "Cyan", "Blue"]:
+            print(f"Select {color} Color")
+            r = cv2.selectROI(img)
+            cv2.destroyAllWindows()
+
+            crop = img[int(r[1]):int(r[1] + r[3]), int(r[0]):int(r[0] + r[2])]
+            lower = np.array([crop[:,:,0].min(), crop[:,:,1].min(), crop[:,:,2].min()], dtype = np.int)
+            upper = np.array([crop[:,:,0].max(), crop[:,:,1].max(), crop[:,:,2].max()], dtype = np.int)
+
+            cls.color_dict[color] = np.array([lower, upper], np.int)
+        
+        cls.start, _, _ = cls.Bot_Coordinates()
+
+        cls.Compute_Arena()
 
     @classmethod
     def Image(cls):
-        """captures gym environment RGB image
+        """captures the gym environment RGB image
 
         Returns
         -------
         numpy.ndarray of dtype int with shape same as the size of the image
-            image captured from RGB camera of gym environment"""
+            image captured from the RGB camera of the gym environment"""
 
         return cls.env.camera_feed()
 
     @classmethod
     def Respawn_Bot(cls):
-        """removes and respawns bot at its original coordinate"""
+        """removes and respawns the bot at its original coordinate, also re-computes the arena array"""
 
         cls.env.remove_car()
         cls.env.respawn_car()
-        cls.Image()
+
+        cls.Compute_Arena()
     
     @classmethod
-    def Grid_Coordinates(cls, coordinate):
-        """converts coordinate from image coordinate system into grid coordinate system
+    def Reset_Environment(cls):
+        """reset and restores the gym environment to its original state, also re-computes the arena array"""
+
+        cls.env.reset()
+        cls.Compute_Arena()
+
+    @classmethod
+    def Reveal(cls, coordinate):
+        """removes the cover plate and reveals the shape underneath it, also updates the arena array
 
         Parameters
         ----------
         coordinate : numpy.ndarray of dtype int with shape (2,)
-            coordinate in image coordinate system
+            coordinate in the grid coordinate system, where the plate needs to be removed
+        
+        Raises
+        ------
+        TypeError
+            if parameters passed are not of specified type
+        ValueError
+            if coordinate does not have a dtype int or shape (2,)"""
+
+        if not isinstance(coordinate, np.ndarray):
+            raise TypeError("coordinate must be a numpy.ndarray instance")
+
+        if not np.issubdtype(coordinate.dtype, np.integer):
+            raise ValueError("coordinate must have dtype int")
+
+        if not coordinate.shape == (2,):
+            raise ValueError("coordinate must have shape (2,)")
+
+        cls.env.remove_cover_plate()
+        cls.Update_Arena()
+
+    @classmethod
+    def Grid_Coordinates(cls, coordinate):
+        """converts the coordinate from the image coordinate system into the grid coordinate system
+
+        Parameters
+        ----------
+        coordinate : numpy.ndarray of dtype int with shape (2,)
+            coordinate in the image coordinate system
 
         Returns
         -------
         numpy.ndarray of dtype int with shape (2,)
-            coordinate in grid coordinate system
+            coordinate in the grid coordinate system
 
         Raises
         ------
@@ -145,17 +206,17 @@ class Pixelate():
 
     @classmethod
     def Image_Coordinates(cls, coordinate):
-        """converts coordinate from grid coordinate system into image coordinate system
+        """converts the coordinate from the grid coordinate system into the image coordinate system
 
         Parameters
         ----------
         coordinate : numpy.ndarray of dtype int with shape (2,)
-            coordinate in grid coordinate system
+            coordinate in the grid coordinate system
 
         Returns
         -------
         numpy.ndarray of dtype int with shape (2,)
-            coordinate in image coordinate system
+            coordinate in the image coordinate system
 
         Raises
         ------
@@ -178,12 +239,12 @@ class Pixelate():
 
     @classmethod
     def Bot_Coordinates(cls):
-        """calculates bot coordinate
+        """computes the bot coordinate in the grid coordinate system, in the image coordinate system and the bot vector in the image coordinate system
 
         Returns
         -------
         tuple of numpy.ndarray of dtype int with shape (2,)
-            tuple of size three containing bot coordinate in grid coordinate system, in image coordinate system and bot vector in image coordinate system
+            tuple of size three, containing the bot coordinate in the grid coordinate system, in the image coordinate system and the bot vector in the image coordinate system
             
         Raises
         ------
@@ -205,34 +266,19 @@ class Pixelate():
         raise AttributeError(f"aruco with id {cls.aruco_id} not found in the cameral image")
 
     @classmethod
-    def Pre_Compute(cls):
-        """calculates the arena array, size of the arena and size of the additional area to remove
-
-        Raises
-        ------
-        IndexError
-            if region of interest lies outside the cropped image"""
+    def Compute_Arena(cls):
+        """initializes and computes the arena array, also removes and respawns the bot at its original coordinate if required"""
         
-        print("Instructions:")
-        print("Crop The Image To Arena Size")
-
+        if not (cls.start == cls.Bot_Coordinates()[0]).all():
+            cls.Respawn_Bot()
+            return None
+        
         img = cls.Image()
-        r = cv2.selectROI(img)
-        cv2.destroyAllWindows()
-
-        crop = img[int(r[1]):int(r[1] + r[3]), int(r[0]):int(r[0] + r[2])]
-        cls.size = np.array([crop.shape[1], crop.shape[0]], dtype = np.int)
-        cls.thickness = np.array([r[0], r[1]], dtype = np.int)
+        cls.arena = np.zeros([cls.n_rows, cls.n_cols], dtype = np.int)
 
         for color in ["White", "Green", "Yellow", "Red", "Pink", "Cyan", "Blue"]:
-            print(f"Select {color} Color")
-            r = cv2.selectROI(img)
-            cv2.destroyAllWindows()
-
-            crop = img[int(r[1]):int(r[1] + r[3]), int(r[0]):int(r[0] + r[2])]
-            lower = np.array([crop[:,:,0].min(), crop[:,:,1].min(), crop[:,:,2].min()], dtype = np.int) - 10
-            upper = np.array([crop[:,:,0].max(), crop[:,:,1].max(), crop[:,:,2].max()], dtype = np.int) + 10
-            mask = cv2.inRange(img, lower, upper)
+            lower, upper = cls.color_dict[color]
+            mask = cv2.inRange(img, lower - 10, upper + 10)
 
             kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (3,3))
             mask = cv2.morphologyEx(mask, cv2.MORPH_DILATE, kernel)
@@ -291,25 +337,56 @@ class Pixelate():
                                     elif abs(key - y_key) > 6 and key < y_key:
                                         cls.arena[cx][cy] *= cls.interpretation_dict["Blue Triangle 0"]
                                         break
-                                    
-        (x, y), _, _ = cls.Bot_Coordinates()
-        cls.arena[x][y] = cls.interpretation_dict["Green"] 
+        
+        cls.arena[cls.start[0]][cls.start[1]] = cls.interpretation_dict["Green"]
+        cls.reveal =  np.array(np.asarray(cls.arena == cls.interpretation_dict["Pink"]).nonzero(), dtype = np.int)
     
+    #yet to complete
+    @classmethod
+    def Update_Arena(cls):
+        lower, upper = cls.color_dict["Blue"]
+        mask = cv2.inRange(img, lower - 10, upper + 10)
+
+        kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (3,3))
+        mask = cv2.morphologyEx(mask, cv2.MORPH_DILATE, kernel)
+        res = cv2.bitwise_and(img, img, mask = mask)
+
+        gray = cv2.cvtColor(res, cv2.COLOR_BGR2GRAY)
+        contours, _ = cv2.findContours(gray, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
+            
+        for contour in contours:
+            Area = cv2.contourArea(contour)
+            if Area > 200.0:
+                m = cv2.moments(contour)
+                x = m["m10"] / m["m00"]
+                y = m["m01"] / m["m00"]
+                    
+                cx, cy = cls.Grid_Coordinates(np.array([x,y], dtype = np.int))
+                
+                if any(([cx, cy] == x).all() for x in cls.reveal):
+                    _, (w, h), _ = cv2.minAreaRect(contour)
+                    ratio = Area / (w * h)
+                
+                    if ratio > 0.9:
+                        cls.arena[cx][cy] *= cls.interpretation_dict["Blue Square"]  
+                    elif ratio > 0.75:
+                        cls.arena[cx][cy] *= cls.interpretation_dict["Blue Circle"]
+
     @staticmethod
     def Euclidean_Distance(coordinate_1, coordinate_2):
-        """calculates euclidean distance between two points
+        """computes the euclidean distance between the two points
 
         Parameters
         ----------
         coordinate_1 : numpy.ndarray dtype int with shape (2,)
-            coordinate of point_1
+            coordinate of the point_1
         coordinate_2 : numpy.ndarray dtype int with shape (2,)
-            coordinate of point_2
+            coordinate of the point_2
 
         Returns
         -------
         float
-            euclidean distance between two points
+            euclidean distance between the two points
 
         Raises
         ------
@@ -340,19 +417,19 @@ class Pixelate():
 
     @staticmethod
     def Angle(vector_1, vector_2):
-        """calculates angle between two 2D vectors in degrees (-180 to +180)
+        """computes the angle between the two 2D vectors in degrees (-180 to +180)
 
         Parameters
         ----------
         vector_1 : numpy.ndarray of dtype int with shape (2,)
-            coefficients of vector_1
+            coefficients of the vector_1
         vector_2 :numpy.ndarray of dtype int with shape (2,)
-            coefficients of vector_2
+            coefficients of the vector_2
 
         Returns
         -------
         float
-            angle between two 2D vectors in degrees (-180 to +180)
+            angle between the two 2D vectors in degrees (-180 to +180)
         
         Raises
         ------
@@ -383,7 +460,7 @@ class Pixelate():
 
     @classmethod
     def Move_Bot(cls, factor, move):
-        """moves the bot in the desired direction or aligns the bot with an optimal speed
+        """moves the bot in the desired direction or aligns it, with an optimal speed
 
         Parameters
         ----------
@@ -434,7 +511,7 @@ class Pixelate():
 
     @classmethod
     def Follow_Path(cls, path):
-        """makes bot follow the given path
+        """makes the bot follow the given path
 
         Parameters
         ----------
@@ -489,19 +566,19 @@ class Pixelate():
         Input
         -----
         UP_ARROW
-            makes bot move forward
+            makes the bot move in the forward direction
         DOWN_ARROW
-            makes bot move backward
+            makes the bot move in the backward direction
         LEFT_ARROW
-            makes bot take a left turn
+            makes the bot take a left turn
         RIGHT_ARROW
-            makes bot take a right turn
+            makes the bot take a right turn
         c or C
-            captures gym environment RGB image
+            captures the gym environment RGB image
         r or R
-            respawns bot at its original coordinate
+            removes and respawns the bot at its original coordinate
         q or Q
-            to quit mannual override"""
+            quits the manual override"""
 
         targetVel = 2.5
         while True:

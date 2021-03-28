@@ -268,7 +268,7 @@ class Pixelate():
     def Compute_Arena(cls):
         """initializes and computes the arena array, also removes and respawns the bot at its starting coordinate if required"""
         
-        if not (cls.start == cls.Bot_Coordinates()[0]).all():
+        if not cls.start in cls.Bot_Coordinates()[0]:
             cls.Respawn_Bot()
         
         img = cls.Image()
@@ -337,7 +337,7 @@ class Pixelate():
                                         break
         
         cls.arena[cls.start[0]][cls.start[1]] = cls.interpretation_dict["Green"]
-        cls.reveal =  np.array(np.asarray(cls.arena == cls.interpretation_dict["Pink"]).nonzero(), dtype = np.int)
+        cls.reveal =  np.array((cls.arena == cls.interpretation_dict["Pink"]).nonzero(), dtype = np.int)
     
     @classmethod
     def Update_Arena(cls, coordinate):
@@ -394,7 +394,7 @@ class Pixelate():
                         cls.arena[cx][cy] *= cls.interpretation_dict["Blue Circle"]
                     break
 
-        index = np.flatnonzero((cls.reveal == coordinate).all(1))
+        index = (cls.reveal == coordinate).all(1).nonzero()[0]
         cls.reveal = np.delete(cls.reveal, index, 0)
 
     @staticmethod
@@ -583,7 +583,12 @@ class Pixelate():
                         cls.Move_Bot(180 + theta, "R") 
                 else:
                     break
-        
+
+        for cover_plate in cls.reveal:
+            if cls.Euclidean_Distance(node, cover_plate) == 1.0:
+                cls.Reveal(cover_plate)
+                break
+    
     @classmethod
     def Manual_Override(cls):
         """allows manual override to drive the bot

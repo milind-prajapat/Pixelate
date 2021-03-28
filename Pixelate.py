@@ -20,8 +20,10 @@ import math
 import numpy as np
 import pybullet as p
 import pix_sample_arena
+
 from cv2 import aruco
 from collections import Counter
+from termcolor import cprint
 
 class Pixelate():
     @classmethod
@@ -88,8 +90,8 @@ class Pixelate():
         cls.interpretation_dict = {"Black": 0, "White": 1, "Green": 2, "Yellow": 3, "Red": 4, "Pink": 5, "Cyan": 7, "Blue Square": 11, "Blue Circle": 13,
                                     "Blue Triangle 0": 17, "Blue Triangle 90": 19, "Blue Triangle 180": 23, "Blue Triangle 270": 29}
         
-        print("Instructions:")
-        print("Crop The Image To Arena Size")
+        cprint("Instructions:", "grey", "on_cyan")
+        cprint("Crop The Image To Arena Size", "grey", "on_cyan")
 
         img = cls.Image()
         r = cv2.selectROI(img)
@@ -102,7 +104,8 @@ class Pixelate():
         cls.color_dict = {}
 
         for color in ["White", "Green", "Yellow", "Red", "Pink", "Cyan", "Blue"]:
-            print(f"Select {color} Color")
+            cprint(f"Select {color} Color", "grey", "on_cyan")
+
             r = cv2.selectROI(img)
             cv2.destroyAllWindows()
 
@@ -266,10 +269,12 @@ class Pixelate():
 
     @classmethod
     def Compute_Arena(cls):
-        """initializes and computes the arena array, also calls the Respawn_Bot to remove and respawn the bot at its starting coordinate if the bot is at different coordinate"""
+        """initializes and computes the arena array, info_dict, also calls the Respawn_Bot to remove and respawn the bot at its starting coordinate if the bot is at different coordinate"""
         
-        if not cls.start in cls.Bot_Coordinates()[0]:
+        bot_coordinate, _, _ = cls.Bot_Coordinates()
+        if not cls.start in bot_coordinate:
             cls.Respawn_Bot()
+            bot_coordinate = cls.Bot_Coordinates()[0]
         
         img = cls.Image()
         cls.arena = np.zeros([cls.n_rows, cls.n_cols], dtype = np.int)
@@ -337,11 +342,16 @@ class Pixelate():
                                         break
         
         cls.arena[cls.start[0]][cls.start[1]] = cls.interpretation_dict["Green"]
-        cls.reveal =  np.array((cls.arena == cls.interpretation_dict["Pink"]).nonzero(), dtype = np.int).T
-    
+        
+        cls.info_dict = {}
+        cls.info_dict["Pink"] = np.array(sorted(np.array((cls.arena == cls.interpretation_dict["Pink"]).nonzero(), dtype = np.int).T, key = lambda coordinate : cls.Euclidean_Distance(coordinate, bot_coordinate)), dtype = np.int)
+        cls.info_dict["Blue Square"] = np.array((cls.arena == cls.interpretation_dict["Cyan"] * cls.interpretation_dict["Blue Square"]).nonzero(), dtype = np.int).T.reshape(2)
+        cls.info_dict["Blue Circle"] = np.array((cls.arena == cls.interpretation_dict["Cyan"] * cls.interpretation_dict["Blue Circle"]).nonzero(), dtype = np.int).T.reshape(2)
+        cls.info_dict["Reveal"] = ["nan"] * cls.info_dict["Pink"].shape[0]
+
     @classmethod
     def Update_Arena(cls, coordinate):
-        """updates the arena array where the bot removed the cover plate
+        """updates the arena array where the bot removed the cover plate, also updates the info_dict
 
         Parameters
         ----------
@@ -374,7 +384,7 @@ class Pixelate():
 
         gray = cv2.cvtColor(res, cv2.COLOR_BGR2GRAY)
         contours, _ = cv2.findContours(gray, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
-            
+        
         for contour in contours:
             Area = cv2.contourArea(contour)
             if Area > 200.0:
@@ -389,13 +399,16 @@ class Pixelate():
                     ratio = Area / (w * h)
                 
                     if ratio > 0.9:
-                        cls.arena[cx][cy] *= cls.interpretation_dict["Blue Square"]  
+                        cls.arena[cx][cy] *= cls.interpretation_dict["Blue Square"]
+
+                        index = np.flatnonzero((cls.info_dict["Pink"] == coordinate).all(1))[0]
+                        cls.info_dict["Reveal"][index] = "Blue Square"
                     elif ratio > 0.75:
                         cls.arena[cx][cy] *= cls.interpretation_dict["Blue Circle"]
-                    break
 
-        index = (cls.reveal == coordinate).all(1).nonzero()[0]
-        cls.reveal = np.delete(cls.reveal, index, 0)
+                        index = np.flatnonzero((cls.info_dict["Pink"] == coordinate).all(1))[0]
+                        cls.info_dict["Reveal"][index] = "Blue Circle"
+                    break
 
     @staticmethod
     def Euclidean_Distance(coordinate_1, coordinate_2):
@@ -536,7 +549,7 @@ class Pixelate():
 
     @classmethod
     def Follow_Path(cls, path):
-        """makes the bot follow the given path
+        """makes the bot follow the given path, calls Reveal to remove the cover plate if the bot is at the node adjacent to the pink tile, also updates the info_dict if the bot is at the node adjacent to the blue square or blue circle
 
         Parameters
         ----------
@@ -563,7 +576,7 @@ class Pixelate():
             destination = cls.Image_Coordinates(node)
 
             while True:
-                _, position, bot_vector = cls.Bot_Coordinates()
+                bot_coordinate, position, bot_vector = cls.Bot_Coordinates()
                 
                 distance = cls.Euclidean_Distance(position, destination)
                 if distance > 12:
@@ -584,11 +597,17 @@ class Pixelate():
                 else:
                     break
 
-        for cover_plate in cls.reveal:
+        for cover_plate in cls.info_dict["Pink"]:
             if cls.Euclidean_Distance(node, cover_plate) == 1.0:
                 cls.Reveal(cover_plate)
-                break
-    
+        
+        for index, x in enumerate(cls.info_dict["Reveal"]):
+            if x != "nan" and cls.Euclidean_Distance(node, cls.info_dict[x]) == 1.0:
+                cls.info_dict["Reveal"].remove(x)
+                cls.info_dict["Pink"] = np.delete(cls.info_dict["Pink"], index, 0)
+                    
+                cls.info_dict["Pink"] = np.array(sorted(cls.info_dict["Pink"], key = lambda coordinate : cls.Euclidean_Distance(coordinate, bot_coordinate)), dtype = np.int)
+
     @classmethod
     def Manual_Override(cls):
         """allows manual override to drive the bot

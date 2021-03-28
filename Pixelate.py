@@ -167,7 +167,7 @@ class Pixelate():
         if not coordinate.shape == (2,):
             raise ValueError("coordinate must have shape (2,)")
 
-        cls.env.remove_cover_plate()
+        cls.env.remove_cover_plate(coordinate[0], coordinate[1])
         cls.Update_Arena(coordinate)
 
     @classmethod
@@ -266,7 +266,7 @@ class Pixelate():
 
     @classmethod
     def Compute_Arena(cls):
-        """initializes and computes the arena array, also removes and respawns the bot at its starting coordinate if required"""
+        """initializes and computes the arena array, also calls the Respawn_Bot to remove and respawn the bot at its starting coordinate if the bot is at different coordinate"""
         
         if not cls.start in cls.Bot_Coordinates()[0]:
             cls.Respawn_Bot()
@@ -337,7 +337,7 @@ class Pixelate():
                                         break
         
         cls.arena[cls.start[0]][cls.start[1]] = cls.interpretation_dict["Green"]
-        cls.reveal =  np.array((cls.arena == cls.interpretation_dict["Pink"]).nonzero(), dtype = np.int)
+        cls.reveal =  np.array((cls.arena == cls.interpretation_dict["Pink"]).nonzero(), dtype = np.int).T
     
     @classmethod
     def Update_Arena(cls, coordinate):

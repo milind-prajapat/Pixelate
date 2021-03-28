@@ -26,7 +26,7 @@ from collections import Counter
 class Pixelate():
     @classmethod
     def __init__(cls, n_rows, n_cols, env_name, aruco_dict, aruco_id):
-        """initializes and computes the essential variables, interpretation_dict, color_dict, size of the arena, size of the additional area to remove and initial coordinate of the bot
+        """initializes and computes the essential variables, interpretation_dict, color_dict, size of the arena, size of the additional area to remove and starting coordinate of the bot, also calls the Compute_Arena to compute the arena array
 
         Parameters
         ----------
@@ -129,12 +129,11 @@ class Pixelate():
 
     @classmethod
     def Respawn_Bot(cls):
-        """removes and respawns the bot at its original coordinate, also re-computes the arena array"""
+        """removes and respawns the bot at its starting coordinate"""
 
         cls.env.remove_car()
         cls.env.respawn_car()
-
-        cls.Compute_Arena()
+        _ = cls.Image()
     
     @classmethod
     def Reset_Environment(cls):
@@ -145,12 +144,12 @@ class Pixelate():
 
     @classmethod
     def Reveal(cls, coordinate):
-        """removes the cover plate and reveals the shape underneath it, also updates the arena array
+        """removes the cover plate and reveals the shape underneath it, also calls the Update_Arena to update the arena array
 
         Parameters
         ----------
         coordinate : numpy.ndarray of dtype int with shape (2,)
-            coordinate in the grid coordinate system, where the plate needs to be removed
+            coordinate in the grid coordinate system, where the cover plate needs to be removed
         
         Raises
         ------
@@ -169,7 +168,7 @@ class Pixelate():
             raise ValueError("coordinate must have shape (2,)")
 
         cls.env.remove_cover_plate()
-        cls.Update_Arena()
+        cls.Update_Arena(coordinate)
 
     @classmethod
     def Grid_Coordinates(cls, coordinate):
@@ -267,11 +266,10 @@ class Pixelate():
 
     @classmethod
     def Compute_Arena(cls):
-        """initializes and computes the arena array, also removes and respawns the bot at its original coordinate if required"""
+        """initializes and computes the arena array, also removes and respawns the bot at its starting coordinate if required"""
         
         if not (cls.start == cls.Bot_Coordinates()[0]).all():
             cls.Respawn_Bot()
-            return None
         
         img = cls.Image()
         cls.arena = np.zeros([cls.n_rows, cls.n_cols], dtype = np.int)
@@ -341,9 +339,32 @@ class Pixelate():
         cls.arena[cls.start[0]][cls.start[1]] = cls.interpretation_dict["Green"]
         cls.reveal =  np.array(np.asarray(cls.arena == cls.interpretation_dict["Pink"]).nonzero(), dtype = np.int)
     
-    #yet to complete
     @classmethod
-    def Update_Arena(cls):
+    def Update_Arena(cls, coordinate):
+        """updates the arena array where the bot removed the cover plate
+
+        Parameters
+        ----------
+        coordinate : numpy.ndarray of dtype int with shape (2,)
+            coordinate in the grid coordinate system, where the bot removed the cover plate
+        
+        Raises
+        ------
+        TypeError
+            if parameters passed are not of specified type
+        ValueError
+            if coordinate does not have a dtype int or shape (2,)"""
+
+        if not isinstance(coordinate, np.ndarray):
+            raise TypeError("coordinate must be a numpy.ndarray instance")
+
+        if not np.issubdtype(coordinate.dtype, np.integer):
+            raise ValueError("coordinate must have dtype int")
+
+        if not coordinate.shape == (2,):
+            raise ValueError("coordinate must have shape (2,)")
+
+        img = cls.Image()
         lower, upper = cls.color_dict["Blue"]
         mask = cv2.inRange(img, lower - 10, upper + 10)
 
@@ -363,7 +384,7 @@ class Pixelate():
                     
                 cx, cy = cls.Grid_Coordinates(np.array([x,y], dtype = np.int))
                 
-                if any(([cx, cy] == x).all() for x in cls.reveal):
+                if ([cx, cy] == coordinate).all():
                     _, (w, h), _ = cv2.minAreaRect(contour)
                     ratio = Area / (w * h)
                 
@@ -371,6 +392,10 @@ class Pixelate():
                         cls.arena[cx][cy] *= cls.interpretation_dict["Blue Square"]  
                     elif ratio > 0.75:
                         cls.arena[cx][cy] *= cls.interpretation_dict["Blue Circle"]
+                    break
+
+        index = np.flatnonzero((cls.reveal == coordinate).all(1))
+        cls.reveal = np.delete(cls.reveal, index, 0)
 
     @staticmethod
     def Euclidean_Distance(coordinate_1, coordinate_2):
@@ -576,7 +601,7 @@ class Pixelate():
         c or C
             captures the gym environment RGB image
         r or R
-            removes and respawns the bot at its original coordinate
+            removes and respawns the bot at its starting coordinate
         q or Q
             quits the manual override"""
 

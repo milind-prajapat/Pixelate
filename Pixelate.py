@@ -48,7 +48,7 @@ class Pixelate():
         TypeError
             if parameters given are not of specified type
         ValueError
-            if n_rows or n_cols is zero, aruco_dict takes value other than specified values or region of interest i.e., arena lies outside the cropped image
+            if n_rows or n_cols is zero, aruco_dict takes value other than specified values or region of interest, i.e., arena lies outside the cropped image
         error
             if tried to connect to the same rendering mode again"""
 
@@ -512,7 +512,17 @@ class Pixelate():
 
     @classmethod
     def Adjacent_Nodes(cls, node):
-        """ doc string 
+        """computes the allowed adjacent nodes of the given node
+
+        Parameters
+        ----------
+        node : int
+            node number
+
+        Returns
+        -------
+        dict
+            containing allowed adjacent nodes as keys and their cost of travel as their values
 
         Raises
         ------
@@ -551,8 +561,15 @@ class Pixelate():
 
     @classmethod
     def Path(cls, source, destination):
-        """ doc string 
+        """computes the shortest possible path from the source node to the destination node, i.e., one with the least cost
         
+        Parameters
+        ----------
+        source : numpy.ndarray dtype int with shape (2,)
+            coordinate of the source node
+        destination : numpy.ndarray dtype int with shape (2,)
+            coordinate of the destination node
+
         Raises
         ------
         TypeError

@@ -88,15 +88,19 @@ class Pixelate():
                                     "Blue Triangle 0": 17, "Blue Triangle 90": 19, "Blue Triangle 180": 23, "Blue Triangle 270": 29}
         
         cprint("Instructions:", "grey", "on_cyan")
-        cprint("Crop The Image To Arena Size", "grey", "on_cyan")
+        cprint("Crop The Image To Arena Size, press c to cancel if cropping is not required", "grey", "on_cyan")
 
         img = cls.Image()
         r = cv2.selectROI(img)
         cv2.destroyAllWindows()
 
-        crop = img[int(r[1]):int(r[1] + r[3]), int(r[0]):int(r[0] + r[2])]
-        cls.size = np.array([crop.shape[1], crop.shape[0]], dtype = np.int)
-        cls.thickness = np.array([r[0], r[1]], dtype = np.int)
+        if not r == (0,0,0,0):
+            crop = img[int(r[1]):int(r[1] + r[3]), int(r[0]):int(r[0] + r[2])]
+            cls.size = np.array([crop.shape[1], crop.shape[0]], dtype = np.int)
+            cls.thickness = np.array([r[0], r[1]], dtype = np.int)
+        else:
+            cls.size = np.array([img.shape[1], img.shape[0]], dtype = np.int)
+            cls.thickness = np.array([0, 0], dtype = np.int)
 
         cls.color_dict = {}
 

@@ -49,7 +49,7 @@ class Pixelate():
             if parameters passed are not of specified type
         ValueError
             if n_rows or n_cols is zero, aruco_dict takes value other than specified values or region of interest i.e., arena lies outside the cropped image
-        ConnectionRefusedError
+        error
             if tried to connect to the same rendering mode again"""
 
         if not isinstance(n_rows, int):
@@ -76,10 +76,7 @@ class Pixelate():
         if not isinstance(aruco_id, int):
             raise TypeError("aruco_id must be an int instance")
         
-        try:
-            cls.env = gym.make(env_name)
-        except Exception as e:
-            raise ConnectionRefusedError(e)
+        cls.env = gym.make(env_name)
 
         cls.n_rows = n_rows
         cls.n_cols = n_cols

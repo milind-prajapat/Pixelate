@@ -46,7 +46,7 @@ class Pixelate():
         Raises
         ------
         TypeError
-            if parameters passed are not of specified type
+            if parameters given are not of specified type
         ValueError
             if n_rows or n_cols is zero, aruco_dict takes value other than specified values or region of interest i.e., arena lies outside the cropped image
         error
@@ -147,34 +147,6 @@ class Pixelate():
         cls.Compute_Arena()
 
     @classmethod
-    def Reveal(cls, coordinate):
-        """removes the cover plate and reveals the shape underneath it, also calls the Update_Arena to update the arena array
-
-        Parameters
-        ----------
-        coordinate : numpy.ndarray of dtype int with shape (2,)
-            coordinate in the grid coordinate system, where the cover plate needs to be removed
-        
-        Raises
-        ------
-        TypeError
-            if parameters passed are not of specified type
-        ValueError
-            if coordinate does not have a dtype int or shape (2,)"""
-
-        if not isinstance(coordinate, np.ndarray):
-            raise TypeError("coordinate must be a numpy.ndarray instance")
-
-        if not np.issubdtype(coordinate.dtype, np.integer):
-            raise ValueError("coordinate must have dtype int")
-
-        if not coordinate.shape == (2,):
-            raise ValueError("coordinate must have shape (2,)")
-
-        cls.env.remove_cover_plate(coordinate[0], coordinate[1])
-        cls.Update_Arena(coordinate)
-
-    @classmethod
     def Grid_Coordinates(cls, coordinate):
         """converts the coordinate from the image coordinate system into the grid coordinate system
 
@@ -191,7 +163,7 @@ class Pixelate():
         Raises
         ------
         TypeError
-            if parameters passed are not of specified type
+            if parameters given are not of specified type
         ValueError
             if coordinate does not have a dtype int or shape (2,)"""
         
@@ -224,7 +196,7 @@ class Pixelate():
         Raises
         ------
         TypeError
-            if parameters passed are not of specified type
+            if parameters given are not of specified type
         ValueError
             if coordinate does not have a dtype int or shape (2,)"""
         
@@ -257,8 +229,8 @@ class Pixelate():
         gray = cv2.cvtColor(cls.Image(), cv2.COLOR_BGR2GRAY)
         corners, ids, _ = aruco.detectMarkers(gray, cls.aruco_dict, parameters = aruco.DetectorParameters_create())
         
-        for i, corner in enumerate(corners):
-            id = ids[i][0]
+        for index, corner in enumerate(corners):
+            id = ids[index][0]
             if id == 107:
                 position = np.array([(corner[0][0][0] + corner[0][2][0]) / 2, (corner[0][0][1] + corner[0][2][1]) / 2], dtype = np.int)
                 position_node = cls.Grid_Coordinates(position)             
@@ -351,6 +323,34 @@ class Pixelate():
         cls.info_dict["Reveal"] = ["nan"] * cls.info_dict["Pink"].shape[0]
 
     @classmethod
+    def Reveal(cls, coordinate):
+        """removes the cover plate and reveals the shape underneath it, also calls the Update_Arena to update the arena array
+
+        Parameters
+        ----------
+        coordinate : numpy.ndarray of dtype int with shape (2,)
+            coordinate in the grid coordinate system, where the cover plate needs to be removed
+        
+        Raises
+        ------
+        TypeError
+            if parameters given are not of specified type
+        ValueError
+            if coordinate does not have a dtype int or shape (2,)"""
+
+        if not isinstance(coordinate, np.ndarray):
+            raise TypeError("coordinate must be a numpy.ndarray instance")
+
+        if not np.issubdtype(coordinate.dtype, np.integer):
+            raise ValueError("coordinate must have dtype int")
+
+        if not coordinate.shape == (2,):
+            raise ValueError("coordinate must have shape (2,)")
+
+        cls.env.remove_cover_plate(coordinate[0], coordinate[1])
+        cls.Update_Arena(coordinate)
+
+    @classmethod
     def Update_Arena(cls, coordinate):
         """updates the arena array where the bot removed the cover plate, also updates the info_dict
 
@@ -362,7 +362,7 @@ class Pixelate():
         Raises
         ------
         TypeError
-            if parameters passed are not of specified type
+            if parameters given are not of specified type
         ValueError
             if coordinate does not have a dtype int or shape (2,)"""
 
@@ -411,6 +411,226 @@ class Pixelate():
                         cls.info_dict["Reveal"][index] = "Blue Circle"
                     break
 
+    @classmethod
+    def Node(cls, coordinate):
+        """computes the node number of the given grid coordinate
+
+        Parameters
+        ----------
+        coordinate : numpy.ndarray of dtype int with shape (2,)
+            coordinate in the grid coordinate system
+
+        Returns
+        -------
+        int
+            node number of the given coordinate
+
+        Raises
+        ------
+        TypeError
+            if parameters given are not of specified type
+        ValueError
+            if coordinate does not have a dtype int or shape (2,)"""
+        
+        if not isinstance(coordinate, np.ndarray):
+            raise TypeError("coordinate must be a numpy.ndarray instance")
+
+        if not np.issubdtype(coordinate.dtype, np.integer):
+            raise ValueError("coordinate must have dtype int")
+
+        if not coordinate.shape == (2,):
+            raise ValueError("coordinate must have shape (2,)")
+
+        return int(coordinate[0] * cls.n_rows + coordinate[1])
+
+    @classmethod
+    def Coordinate(cls, node):
+        """computes the grid coordinate of the given node number 
+
+        Parameters
+        ----------
+        node : int
+            node number
+
+        Returns
+        -------
+        numpy.ndarray of dtype int with shape (2,)
+            coordinate in the grid coordinate system
+            
+        Raises
+        ------
+        TypeError
+            if parameters given are not of specified type"""
+
+        if not isinstance(node, int):
+            raise TypeError("node must be a int instance")
+        
+        return np.array([node / cls.n_rows, node % cls.n_cols], np.int)
+
+    @staticmethod
+    def Manhattan_Distance(coordinate_1, coordinate_2):
+        """computes the manhattan distance between the two points
+
+        Parameters
+        ----------
+        coordinate_1 : numpy.ndarray dtype int with shape (2,)
+            coordinate of the point_1
+        coordinate_2 : numpy.ndarray dtype int with shape (2,)
+            coordinate of the point_2
+
+        Returns
+        -------
+        int
+            manhattan distance between the two points
+
+        Raises
+        ------
+        TypeError
+            if parameters given are not of specified type
+        ValueError
+            if coordinate_1 or coordinate_2 does not have a dtype int or shape (2,)"""
+
+        if not isinstance(coordinate_1, np.ndarray):
+            raise TypeError("coordinate_1 must be a numpy.ndarray instance")
+
+        if not np.issubdtype(coordinate_1.dtype, np.int):
+            raise ValueError("coordinate_1 must have dtype int")
+
+        if not coordinate_1.shape == (2,):
+            raise ValueError("coordinate_1 must have shape (2,)")
+
+        if not isinstance(coordinate_2, np.ndarray):
+            raise TypeError("coordinate_2 must be a numpy.ndarray instance")
+
+        if not np.issubdtype(coordinate_2.dtype, np.int):
+            raise ValueError("coordinate_2 must have dtype int")
+
+        if not coordinate_2.shape == (2,):
+            raise ValueError("coordinate_2 must have shape (2,)")
+
+        return abs(coordinate_1[0] - coordinate_2[0]) + abs(coordinate_1[1] - coordinate_2[1])
+
+    @classmethod
+    def Adjacent_Nodes(cls, node):
+        """ doc string 
+
+        Raises
+        ------
+        TypeError
+            if parameters given are not of specified type"""
+
+        if not isinstance(node, int):
+            raise TypeError("node must be a int instance")
+        
+        node_dict = {}
+        x, y = cls.Coordinate(node)
+        
+        for index, (x, y) in enumerate([[x + 1, y], [x, y - 1], [x - 1, y], [x, y + 1]]):
+            new_node = cls.Node(np.array([x,y], np.int))
+
+            if all([x >= 0, y >= 0, x < cls.n_rows, y < cls.n_cols]) and all([not new_node in cls.closed, cls.arena[x][y] != 0]):        
+                if new_node == cls.end_node:
+                    node_dict[new_node] = 0
+                elif cls.arena[x][y] in [1,2,3,4]:
+                    node_dict[new_node] = cls.arena[x][y]
+                else:
+                    Ways = [cls.arena[x][y] % cls.interpretation_dict["Blue Triangle 0"],
+                            cls.arena[x][y] % cls.interpretation_dict["Blue Triangle 90"],
+                            cls.arena[x][y] % cls.interpretation_dict["Blue Triangle 180"],
+                            cls.arena[x][y] % cls.interpretation_dict["Blue Triangle 270"]]
+
+                    Cost = [int(cls.arena[x][y] / cls.interpretation_dict["Blue Triangle 0"]),
+                            int(cls.arena[x][y] / cls.interpretation_dict["Blue Triangle 90"]),
+                            int(cls.arena[x][y] / cls.interpretation_dict["Blue Triangle 180"]),
+                            int(cls.arena[x][y] / cls.interpretation_dict["Blue Triangle 270"])]
+                
+                    if 0 in Ways and Ways.index(0) != index:
+                        node_dict[new_node] = Cost[Ways.index(0)]
+                    
+        return node_dict
+
+    @classmethod
+    def Path(cls, source, destination):
+        """ doc string 
+        
+        Raises
+        ------
+        TypeError
+            if parameters given are not of specified type
+        ValueError
+            if source or destination does not have a dtype int or shape (2,)"""
+
+        if not isinstance(source, np.ndarray):
+            raise TypeError("source must be a numpy.ndarray instance")
+
+        if not np.issubdtype(source.dtype, np.int):
+            raise ValueError("source must have dtype int")
+
+        if not source.shape == (2,):
+            raise ValueError("source must have shape (2,)")
+
+        if not isinstance(destination, np.ndarray):
+            raise TypeError("destination must be a numpy.ndarray instance")
+
+        if not np.issubdtype(destination.dtype, np.int):
+            raise ValueError("destination must have dtype int")
+
+        if not destination.shape == (2,):
+            raise ValueError("destination must have shape (2,)")
+
+        cls.start_node = cls.Node(source)
+        cls.end_node = cls.Node(destination)
+
+        cls.table = np.zeros([cls.n_rows * cls.n_cols, 4], np.float)
+
+        for node in range(cls.table.shape[0]):
+            if node != cls.start_node:
+                cls.table[node][0] = math.inf
+                cls.table[node][1] = cls.Manhattan_Distance(cls.Coordinate(cls.start_node), cls.Coordinate(node))
+                cls.table[node][2] = math.inf
+                cls.table[node][3] = -1
+            else:
+                cls.table[node][0] = 0
+                cls.table[node][2] = cls.table[node][0] + cls.table[node][1]
+                cls.table[node][3] = cls.start_node
+
+        cls.open = [cls.start_node]
+        cls.closed = []
+        current_node = cls.start_node
+
+        while current_node != cls.end_node:
+            adjacent_nodes = cls.Adjacent_Nodes(current_node)
+
+            for node in adjacent_nodes:
+                if cls.table[node][0] > cls.table[current_node][0] + adjacent_nodes[node]:
+                    cls.table[node][0] = cls.table[current_node][0] + adjacent_nodes[node] 
+                    cls.table[node][2] = cls.table[node][0] + cls.table[node][1]
+                    cls.table[node][3] = current_node
+
+                    if node not in cls.open:
+                        cls.open.append(node)
+    
+            cls.open.remove(current_node)
+            cls.closed.append(current_node)
+            
+            best_node = None
+            best_f_value = math.inf
+
+            for node in cls.open:
+                if cls.table[node][2] < best_f_value:
+                    best_node = node
+                    best_f_value = cls.table[node][2]
+     
+            current_node = int(best_node)
+
+        node = cls.end_node
+        Path = [cls.Coordinate(node)]
+        while node != cls.start_node:
+            node = int(cls.table[node][3])
+            Path.append(cls.Coordinate(node))
+
+        return np.array(Path[::-1], np.int)
+
     @staticmethod
     def Euclidean_Distance(coordinate_1, coordinate_2):
         """computes the euclidean distance between the two points
@@ -430,9 +650,9 @@ class Pixelate():
         Raises
         ------
         TypeError
-            if parameters passed are not of specified type
+            if parameters given are not of specified type
         ValueError
-            if coordinate_1 or coordinate_2 does not have a dtype int or shape (,2)"""
+            if coordinate_1 or coordinate_2 does not have a dtype int or shape (2,)"""
 
         if not isinstance(coordinate_1, np.ndarray):
             raise TypeError("coordinate_1 must be a numpy.ndarray instance")
@@ -473,9 +693,9 @@ class Pixelate():
         Raises
         ------
         TypeError
-            if parameters passed are not of specified type
+            if parameters given are not of specified type
         ValueError
-            if vector_1 or vector_2 does not have a dtype int or shape (,2)"""
+            if vector_1 or vector_2 does not have a dtype int or shape (2,)"""
 
         if not isinstance(vector_1, np.ndarray):
             raise TypeError("vector_1 must be a numpy.ndarray instance")
@@ -511,7 +731,7 @@ class Pixelate():
         Raises
         ------
         TypeError
-            if parameters passed are not of specified type
+            if parameters given are not of specified type
         ValueError
             if move takes value other than specified values"""
 
@@ -560,7 +780,7 @@ class Pixelate():
         Raises
         ------
         TypeError
-            if parameters passed are not of specified type
+            if parameters given are not of specified type
         ValueError
             if path does not have a dtype int or shape (,2)"""
         

@@ -28,7 +28,8 @@ from termcolor import cprint
 class Pixelate():
     @classmethod
     def __init__(cls, n_rows, n_cols, env_name, aruco_dict, aruco_id):
-        """initializes and computes the essential variables, interpretation_dict, color_dict, size of the arena, size of the additional area to remove and starting coordinate of the bot, also calls the Compute_Arena to compute the arena array
+        """
+        initializes and computes the essential variables, interpretation_dict, color_dict, size of the arena, size of the additional area to remove and starting coordinate of the bot, also calls the Compute_Arena to compute the arena array
 
         Parameters
         ----------
@@ -50,7 +51,8 @@ class Pixelate():
         ValueError
             if n_rows or n_cols is zero, aruco_dict takes value other than specified values or region of interest, i.e., arena lies outside the cropped image
         error
-            if tried to connect to the same rendering mode again"""
+            if tried to connect to the same rendering mode again
+        """
 
         if not isinstance(n_rows, int):
             raise TypeError("n_rows must be an int instance")
@@ -122,18 +124,22 @@ class Pixelate():
 
     @classmethod
     def Image(cls):
-        """captures the gym environment RGB image
+        """
+        captures the gym environment RGB image
 
         Returns
         -------
         numpy.ndarray of dtype int with shape same as the size of the image
-            image captured from the RGB camera of the gym environment"""
+            image captured from the RGB camera of the gym environment
+        """
 
         return cls.env.camera_feed()
 
     @classmethod
     def Respawn_Bot(cls):
-        """removes and respawns the bot at its starting coordinate"""
+        """
+        removes and respawns the bot at its starting coordinate
+        """
 
         cls.env.remove_car()
         cls.env.respawn_car()
@@ -141,14 +147,17 @@ class Pixelate():
     
     @classmethod
     def Reset_Environment(cls):
-        """reset and restores the gym environment to its original state, also re-computes the arena array"""
+        """
+        reset and restores the gym environment to its original state, also re-computes the arena array
+        """
 
         cls.env.reset()
         cls.Compute_Arena()
 
     @classmethod
-    def Grid_Coordinates(cls, coordinate):
-        """converts the coordinate from the image coordinate system into the grid coordinate system
+    def Grid_Coordinate(cls, coordinate):
+        """
+        converts the coordinate from the image coordinate system into the grid coordinate system
 
         Parameters
         ----------
@@ -165,7 +174,8 @@ class Pixelate():
         TypeError
             if parameters given are not of specified type
         ValueError
-            if coordinate does not have a dtype int or shape (2,)"""
+            if coordinate does not have a dtype int or shape (2,)
+        """
         
         if not isinstance(coordinate, np.ndarray):
             raise TypeError("coordinate must be a numpy.ndarray instance")
@@ -180,8 +190,9 @@ class Pixelate():
                          (coordinate[0] - cls.thickness[0]) / (cls.size[0] / cls.n_cols)], dtype = np.int)
 
     @classmethod
-    def Image_Coordinates(cls, coordinate):
-        """converts the coordinate from the grid coordinate system into the image coordinate system
+    def Image_Coordinate(cls, coordinate):
+        """
+        converts the coordinate from the grid coordinate system into the image coordinate system
 
         Parameters
         ----------
@@ -198,7 +209,8 @@ class Pixelate():
         TypeError
             if parameters given are not of specified type
         ValueError
-            if coordinate does not have a dtype int or shape (2,)"""
+            if coordinate does not have a dtype int or shape (2,)
+        """
         
         if not isinstance(coordinate, np.ndarray):
             raise TypeError("coordinate must be a numpy.ndarray instance")
@@ -214,7 +226,8 @@ class Pixelate():
 
     @classmethod
     def Bot_Coordinates(cls):
-        """computes the bot coordinate in the grid coordinate system, in the image coordinate system and the bot vector in the image coordinate system
+        """
+        computes the bot coordinate in the grid coordinate system, in the image coordinate system and the bot vector in the image coordinate system
 
         Returns
         -------
@@ -223,8 +236,9 @@ class Pixelate():
             
         Raises
         ------
-        AttributeError
-            if aruco with supplied id is not found in the cameral image"""
+        RuntimeError
+            if aruco with supplied id is not found in the cameral image
+        """
 
         gray = cv2.cvtColor(cls.Image(), cv2.COLOR_BGR2GRAY)
         corners, ids, _ = aruco.detectMarkers(gray, cls.aruco_dict, parameters = aruco.DetectorParameters_create())
@@ -233,21 +247,23 @@ class Pixelate():
             id = ids[index][0]
             if id == 107:
                 position = np.array([(corner[0][0][0] + corner[0][2][0]) / 2, (corner[0][0][1] + corner[0][2][1]) / 2], dtype = np.int)
-                position_node = cls.Grid_Coordinates(position)             
+                position_node = cls.Grid_Coordinate(position)             
                 bot_vector = np.array([(corner[0][0][0] + corner[0][1][0] - corner[0][2][0] - corner[0][3][0]) / 2, (corner[0][0][1] + corner[0][1][1] - corner[0][2][1] - corner[0][3][1]) / 2], dtype = np.int)
 
                 return position_node, position, bot_vector
 
-        raise AttributeError(f"aruco with id {cls.aruco_id} not found in the cameral image")
+        raise RuntimeError(f"aruco with id {cls.aruco_id} not found in the cameral image")
 
     @classmethod
     def Compute_Arena(cls):
-        """initializes and computes the arena array, info_dict, also calls the Respawn_Bot to remove and respawn the bot at its starting coordinate if the bot is at different coordinate"""
+        """
+        initializes and computes the arena array, info_dict, also calls the Respawn_Bot to remove and respawn the bot at its starting coordinate if the bot is at different coordinate
+        """
         
         bot_coordinate, _, _ = cls.Bot_Coordinates()
         if not cls.start in bot_coordinate:
             cls.Respawn_Bot()
-            bot_coordinate = cls.Bot_Coordinates()[0]
+            bot_coordinate, _, _ = cls.Bot_Coordinates()
         
         img = cls.Image()
         cls.arena = np.zeros([cls.n_rows, cls.n_cols], dtype = np.int)
@@ -270,7 +286,7 @@ class Pixelate():
                     x = m["m10"] / m["m00"]
                     y = m["m01"] / m["m00"]
                     
-                    cx, cy = cls.Grid_Coordinates(np.array([x,y], dtype = np.int))
+                    cx, cy = cls.Grid_Coordinate(np.array([x,y], dtype = np.int))
                     _, (w, h), _ = cv2.minAreaRect(contour)
                     ratio = Area / (w * h)
                     
@@ -324,7 +340,8 @@ class Pixelate():
 
     @classmethod
     def Reveal(cls, coordinate):
-        """removes the cover plate and reveals the shape underneath it, also calls the Update_Arena to update the arena array
+        """
+        removes the cover plate and reveals the shape underneath it, also calls the Update_Arena to update the arena array
 
         Parameters
         ----------
@@ -336,7 +353,8 @@ class Pixelate():
         TypeError
             if parameters given are not of specified type
         ValueError
-            if coordinate does not have a dtype int or shape (2,)"""
+            if coordinate does not have a dtype int or shape (2,)
+        """
 
         if not isinstance(coordinate, np.ndarray):
             raise TypeError("coordinate must be a numpy.ndarray instance")
@@ -352,7 +370,8 @@ class Pixelate():
 
     @classmethod
     def Update_Arena(cls, coordinate):
-        """updates the arena array where the bot removed the cover plate, also updates the info_dict
+        """
+        updates the arena array where the bot removed the cover plate, also updates the info_dict
 
         Parameters
         ----------
@@ -364,7 +383,8 @@ class Pixelate():
         TypeError
             if parameters given are not of specified type
         ValueError
-            if coordinate does not have a dtype int or shape (2,)"""
+            if coordinate does not have a dtype int or shape (2,)
+        """
 
         if not isinstance(coordinate, np.ndarray):
             raise TypeError("coordinate must be a numpy.ndarray instance")
@@ -393,7 +413,7 @@ class Pixelate():
                 x = m["m10"] / m["m00"]
                 y = m["m01"] / m["m00"]
                     
-                cx, cy = cls.Grid_Coordinates(np.array([x,y], dtype = np.int))
+                cx, cy = cls.Grid_Coordinate(np.array([x,y], dtype = np.int))
                 
                 if ([cx, cy] == coordinate).all():
                     _, (w, h), _ = cv2.minAreaRect(contour)
@@ -413,7 +433,8 @@ class Pixelate():
 
     @classmethod
     def Node(cls, coordinate):
-        """computes the node number of the given grid coordinate
+        """
+        computes the node number of the given grid coordinate
 
         Parameters
         ----------
@@ -430,7 +451,8 @@ class Pixelate():
         TypeError
             if parameters given are not of specified type
         ValueError
-            if coordinate does not have a dtype int or shape (2,)"""
+            if coordinate does not have a dtype int or shape (2,)
+        """
         
         if not isinstance(coordinate, np.ndarray):
             raise TypeError("coordinate must be a numpy.ndarray instance")
@@ -445,7 +467,8 @@ class Pixelate():
 
     @classmethod
     def Coordinate(cls, node):
-        """computes the grid coordinate of the given node number 
+        """
+        computes the grid coordinate of the given node number 
 
         Parameters
         ----------
@@ -460,7 +483,8 @@ class Pixelate():
         Raises
         ------
         TypeError
-            if parameters given are not of specified type"""
+            if parameters given are not of specified type
+        """
 
         if not isinstance(node, int):
             raise TypeError("node must be a int instance")
@@ -469,7 +493,8 @@ class Pixelate():
 
     @staticmethod
     def Manhattan_Distance(coordinate_1, coordinate_2):
-        """computes the manhattan distance between the two points
+        """
+        computes the manhattan distance between the two points
 
         Parameters
         ----------
@@ -488,7 +513,8 @@ class Pixelate():
         TypeError
             if parameters given are not of specified type
         ValueError
-            if coordinate_1 or coordinate_2 does not have a dtype int or shape (2,)"""
+            if coordinate_1 or coordinate_2 does not have a dtype int or shape (2,)
+        """
 
         if not isinstance(coordinate_1, np.ndarray):
             raise TypeError("coordinate_1 must be a numpy.ndarray instance")
@@ -512,7 +538,8 @@ class Pixelate():
 
     @classmethod
     def Adjacent_Nodes(cls, node):
-        """computes the allowed adjacent nodes of the given node
+        """
+        computes the allowed adjacent nodes of the given node
 
         Parameters
         ----------
@@ -527,7 +554,8 @@ class Pixelate():
         Raises
         ------
         TypeError
-            if parameters given are not of specified type"""
+            if parameters given are not of specified type
+        """
 
         if not isinstance(node, int):
             raise TypeError("node must be a int instance")
@@ -561,7 +589,8 @@ class Pixelate():
 
     @classmethod
     def Path(cls, source, destination):
-        """computes the shortest possible path from the source node to the destination node, i.e., one with the least cost
+        """
+        computes the shortest possible path from the source node to the destination node, i.e., one with the least cost
         
         Parameters
         ----------
@@ -575,7 +604,8 @@ class Pixelate():
         TypeError
             if parameters given are not of specified type
         ValueError
-            if source or destination does not have a dtype int or shape (2,)"""
+            if source or destination does not have a dtype int or shape (2,)
+        """
 
         if not isinstance(source, np.ndarray):
             raise TypeError("source must be a numpy.ndarray instance")
@@ -650,7 +680,8 @@ class Pixelate():
 
     @staticmethod
     def Euclidean_Distance(coordinate_1, coordinate_2):
-        """computes the euclidean distance between the two points
+        """
+        computes the euclidean distance between the two points
 
         Parameters
         ----------
@@ -669,7 +700,8 @@ class Pixelate():
         TypeError
             if parameters given are not of specified type
         ValueError
-            if coordinate_1 or coordinate_2 does not have a dtype int or shape (2,)"""
+            if coordinate_1 or coordinate_2 does not have a dtype int or shape (2,)
+        """
 
         if not isinstance(coordinate_1, np.ndarray):
             raise TypeError("coordinate_1 must be a numpy.ndarray instance")
@@ -693,7 +725,8 @@ class Pixelate():
 
     @staticmethod
     def Angle(vector_1, vector_2):
-        """computes the angle between the two 2D vectors in degrees (-180 to +180)
+        """
+        computes the angle between the two 2D vectors in degrees (-180 to +180)
 
         Parameters
         ----------
@@ -712,7 +745,8 @@ class Pixelate():
         TypeError
             if parameters given are not of specified type
         ValueError
-            if vector_1 or vector_2 does not have a dtype int or shape (2,)"""
+            if vector_1 or vector_2 does not have a dtype int or shape (2,)
+        """
 
         if not isinstance(vector_1, np.ndarray):
             raise TypeError("vector_1 must be a numpy.ndarray instance")
@@ -736,7 +770,8 @@ class Pixelate():
 
     @classmethod
     def Move_Bot(cls, factor, move):
-        """moves the bot in the desired direction or aligns it, with an optimal speed
+        """
+        moves the bot in the desired direction or aligns it, with an optimal speed
 
         Parameters
         ----------
@@ -750,7 +785,8 @@ class Pixelate():
         TypeError
             if parameters given are not of specified type
         ValueError
-            if move takes value other than specified values"""
+            if move takes value other than specified values
+        """
 
         if not isinstance(factor, float):
             raise TypeError("factor must be a float instance")
@@ -787,7 +823,8 @@ class Pixelate():
 
     @classmethod
     def Follow_Path(cls, path):
-        """makes the bot follow the given path, calls Reveal to remove the cover plate if the bot is at the node adjacent to the pink tile, also updates the info_dict if the bot is at the node adjacent to the blue square or blue circle
+        """
+        makes the bot follow the given path, calls Reveal to remove the cover plate if the bot is at the node adjacent to the pink tile, also updates the info_dict if the bot is at the node adjacent to the blue square or blue circle
 
         Parameters
         ----------
@@ -799,7 +836,8 @@ class Pixelate():
         TypeError
             if parameters given are not of specified type
         ValueError
-            if path does not have a dtype int or shape (,2)"""
+            if path does not have a dtype int or shape (,2)
+        """
         
         if not isinstance(path, np.ndarray):
             raise TypeError("path must be a numpy.ndarray instance")
@@ -811,7 +849,7 @@ class Pixelate():
             raise ValueError("path must have shape (,2)")
 
         for node in path:
-            destination = cls.Image_Coordinates(node)
+            destination = cls.Image_Coordinate(node)
 
             while True:
                 bot_coordinate, position, bot_vector = cls.Bot_Coordinates()
@@ -848,7 +886,8 @@ class Pixelate():
 
     @classmethod
     def Manual_Override(cls):
-        """allows manual override to drive the bot
+        """
+        allows manual override to drive the bot
 
         Input
         -----
@@ -865,7 +904,8 @@ class Pixelate():
         r or R
             removes and respawns the bot at its starting coordinate
         q or Q
-            quits the manual override"""
+            quits the manual override
+        """
 
         targetVel = 2.5
         while True:

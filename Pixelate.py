@@ -23,7 +23,7 @@ import pix_sample_arena
 
 from cv2 import aruco
 from collections import Counter
-from termcolor import cprint
+from termcolor import colored
 
 class Pixelate():
     @classmethod
@@ -89,8 +89,8 @@ class Pixelate():
         cls.interpretation_dict = {"Black": 0, "White": 1, "Green": 2, "Yellow": 3, "Red": 4, "Pink": 5, "Cyan": 7, "Blue Square": 11, "Blue Circle": 13,
                                     "Blue Triangle 0": 17, "Blue Triangle 90": 19, "Blue Triangle 180": 23, "Blue Triangle 270": 29}
         
-        cprint("Instructions:", "grey", "on_cyan")
-        cprint("Crop The Image To Arena Size, press c to cancel if cropping is not required", "grey", "on_cyan")
+        print(colored("Instructions:", "grey", "on_cyan"))
+        print(colored("Crop The Image To Arena Size, press c to cancel if cropping is not required", "grey", "on_cyan"))
 
         img = cls.Image()
         r = cv2.selectROI(img)
@@ -107,7 +107,7 @@ class Pixelate():
         cls.color_dict = {}
 
         for color in ["White", "Green", "Yellow", "Red", "Pink", "Cyan", "Blue"]:
-            cprint(f"Select {color} Color", "grey", "on_cyan")
+            print(colored(f"Select {color} Color", "grey", "on_cyan"))
 
             r = cv2.selectROI(img)
             cv2.destroyAllWindows()
@@ -233,26 +233,20 @@ class Pixelate():
         -------
         tuple of numpy.ndarray of dtype int with shape (2,)
             tuple of size three, containing the bot coordinate in the grid coordinate system, in the image coordinate system and the bot vector in the image coordinate system
-            
-        Raises
-        ------
-        RuntimeError
-            if aruco with supplied id is not found in the cameral image
         """
 
-        gray = cv2.cvtColor(cls.Image(), cv2.COLOR_BGR2GRAY)
-        corners, ids, _ = aruco.detectMarkers(gray, cls.aruco_dict, parameters = aruco.DetectorParameters_create())
+        while True:
+            gray = cv2.cvtColor(cls.Image(), cv2.COLOR_BGR2GRAY)
+            corners, ids, _ = aruco.detectMarkers(gray, cls.aruco_dict, parameters = aruco.DetectorParameters_create())
         
-        for index, corner in enumerate(corners):
-            id = ids[index][0]
-            if id == 107:
-                position = np.array([(corner[0][0][0] + corner[0][2][0]) / 2, (corner[0][0][1] + corner[0][2][1]) / 2], dtype = np.int)
-                position_node = cls.Grid_Coordinate(position)             
-                bot_vector = np.array([(corner[0][0][0] + corner[0][1][0] - corner[0][2][0] - corner[0][3][0]) / 2, (corner[0][0][1] + corner[0][1][1] - corner[0][2][1] - corner[0][3][1]) / 2], dtype = np.int)
+            for index, corner in enumerate(corners):
+                id = ids[index][0]
+                if id == 107:
+                    position = np.array([(corner[0][0][0] + corner[0][2][0]) / 2, (corner[0][0][1] + corner[0][2][1]) / 2], dtype = np.int)
+                    position_node = cls.Grid_Coordinate(position)             
+                    bot_vector = np.array([(corner[0][0][0] + corner[0][1][0] - corner[0][2][0] - corner[0][3][0]) / 2, (corner[0][0][1] + corner[0][1][1] - corner[0][2][1] - corner[0][3][1]) / 2], dtype = np.int)
 
-                return position_node, position, bot_vector
-
-        raise RuntimeError(f"aruco with id {cls.aruco_id} not found in the cameral image")
+                    return position_node, position, bot_vector
 
     @classmethod
     def Compute_Arena(cls):
@@ -805,7 +799,7 @@ class Pixelate():
             elif move == "B":
                 cls.env.move_husky(-speed, -speed, -speed, -speed)
 
-            for _ in range(int(min(5, factor - 10))):
+            for _ in range(int(min(5, factor - 12))):
                 p.stepSimulation()
         elif move == "L" or move == "R":
             speed = int(min(23, factor + 4))

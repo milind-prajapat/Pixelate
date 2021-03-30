@@ -645,6 +645,7 @@ class Pixelate():
                 cls.table[node][3] = -1
             else:
                 cls.table[node][0] = 0
+                cls.table[node][1] = cls.Manhattan_Distance(cls.Coordinate(cls.end_node), cls.Coordinate(node))
                 cls.table[node][2] = cls.table[node][0] + cls.table[node][1]
                 cls.table[node][3] = cls.start_node
 

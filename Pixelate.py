@@ -640,7 +640,7 @@ class Pixelate():
         for node in range(cls.table.shape[0]):
             if node != cls.start_node:
                 cls.table[node][0] = math.inf
-                cls.table[node][1] = cls.Manhattan_Distance(cls.Coordinate(cls.start_node), cls.Coordinate(node))
+                cls.table[node][1] = cls.Manhattan_Distance(cls.Coordinate(cls.end_node), cls.Coordinate(node))
                 cls.table[node][2] = math.inf
                 cls.table[node][3] = -1
             else:

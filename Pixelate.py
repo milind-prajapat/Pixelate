@@ -640,11 +640,12 @@ class Pixelate():
         for node in range(cls.table.shape[0]):
             if node != cls.start_node:
                 cls.table[node][0] = math.inf
-                cls.table[node][1] = cls.Manhattan_Distance(cls.Coordinate(cls.start_node), cls.Coordinate(node))
+                cls.table[node][1] = cls.Manhattan_Distance(cls.Coordinate(cls.end_node), cls.Coordinate(node))
                 cls.table[node][2] = math.inf
                 cls.table[node][3] = -1
             else:
                 cls.table[node][0] = 0
+                cls.table[node][1] = cls.Manhattan_Distance(cls.Coordinate(cls.end_node), cls.Coordinate(node))
                 cls.table[node][2] = cls.table[node][0] + cls.table[node][1]
                 cls.table[node][3] = cls.start_node
 
@@ -805,7 +806,7 @@ class Pixelate():
             raise ValueError("move cannot take value other than ['F', 'B', 'L', 'R']")
 
         if move == "F" or move == "B":
-            speed = int(min(10, max(factor - 12, 4)))
+            speed = int(min(10, max(factor - 14, 4)))
 
             if move == "F":
                 cls.env.move_husky(speed, speed, speed, speed)
@@ -815,7 +816,7 @@ class Pixelate():
             for _ in range(int(min(4, factor - 11))):
                 p.stepSimulation()
         elif move == "L" or move == "R":
-            speed = int(min(23, factor + 3))
+            speed = int(min(23, factor + 2))
 
             if move == "L":
                 cls.env.move_husky(-speed, speed, -speed, speed)

@@ -27,7 +27,7 @@ from termcolor import colored
 
 class Pixelate():
     @classmethod
-    def __init__(cls, n_rows, n_cols, env_name, aruco_dict, aruco_id, write = False, filename = "output.mkv", codec = "X264", fps = 15):
+    def __init__(cls, n_rows, n_cols, env_name, aruco_dict, aruco_id, write = False, filename = "output.mp4", codec = "H264", fps = 15):
         """
         initializes and computes the essential variables, interpretation_dict, color_dict, size of the arena, size of the additional area to remove and starting coordinate of the bot, also calls the Compute_Arena to compute the arena array
 
@@ -45,11 +45,11 @@ class Pixelate():
             id of the aruco marker
         write : bool, optional (the default is False, which implies not to write the frames)
             if true, writes the frames and saves them into the video, screen size is same as the size of the gym environment image
-        filename : str, optional (the default is output.mkv)
+        filename : str, optional (the default is output.mp4)
             filename of the video, also include the path if you want to save the video at different location, by default it saves it in the current working directory
-        codec : str must have length of exactly four, optional (the default is X264)
+        codec : str must have length of exactly four, optional (the default is H264)
             codec of the video, list of supported codec can be found at: https://www.fourcc.org/codecs.php
-        fps : int
+        fps : int, optional (the default is 15)
             number of frames per second to write in the video
 
         Warnings
@@ -831,17 +831,17 @@ class Pixelate():
             raise ValueError("move cannot take value other than ['F', 'B', 'L', 'R']")
 
         if move == "F" or move == "B":
-            speed = int(min(10, max(factor - 14, 4)))
+            speed = int(min(10, max(factor - 12, 5)))
 
             if move == "F":
                 cls.env.move_husky(speed, speed, speed, speed)
             elif move == "B":
                 cls.env.move_husky(-speed, -speed, -speed, -speed)
 
-            for _ in range(int(min(4, factor - 11))):
+            for _ in range(int(min(5, factor - 11))):
                 p.stepSimulation()
         elif move == "L" or move == "R":
-            speed = int(min(23, factor + 2))
+            speed = int(min(20, factor + 2))
 
             if move == "L":
                 cls.env.move_husky(-speed, speed, -speed, speed)

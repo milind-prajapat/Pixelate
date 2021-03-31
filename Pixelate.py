@@ -635,19 +635,7 @@ class Pixelate():
         cls.start_node = cls.Node(source)
         cls.end_node = cls.Node(destination)
 
-        cls.table = np.zeros([cls.n_rows * cls.n_cols, 4], np.float)
-
-        for node in range(cls.table.shape[0]):
-            if node != cls.start_node:
-                cls.table[node][0] = math.inf
-                cls.table[node][1] = cls.Manhattan_Distance(cls.Coordinate(cls.end_node), cls.Coordinate(node))
-                cls.table[node][2] = math.inf
-                cls.table[node][3] = -1
-            else:
-                cls.table[node][0] = 0
-                cls.table[node][1] = cls.Manhattan_Distance(cls.Coordinate(cls.end_node), cls.Coordinate(node))
-                cls.table[node][2] = cls.table[node][0] + cls.table[node][1]
-                cls.table[node][3] = cls.start_node
+        cls.table = np.zeros([cls.n_rows * cls.n_cols, 4], np.int)
 
         cls.open = [cls.start_node]
         cls.closed = []
@@ -657,26 +645,26 @@ class Pixelate():
             adjacent_nodes = cls.Adjacent_Nodes(current_node)
 
             for node in adjacent_nodes:
-                if cls.table[node][0] > cls.table[current_node][0] + adjacent_nodes[node]:
+                if cls.table[node][0] == 0 or cls.table[node][0] > cls.table[current_node][0] + adjacent_nodes[node]:
+                    if cls.table[node][0] == 0:
+                        cls.open.append(node)
+
                     cls.table[node][0] = cls.table[current_node][0] + adjacent_nodes[node] 
-                    cls.table[node][2] = cls.table[node][0] + cls.table[node][1]
+                    cls.table[node][2] = cls.table[node][0] + cls.Manhattan_Distance(cls.Coordinate(cls.end_node), cls.Coordinate(node))
                     cls.table[node][3] = current_node
 
-                    if node not in cls.open:
-                        cls.open.append(node)
-    
             cls.open.remove(current_node)
             cls.closed.append(current_node)
             
-            best_node = None
-            best_f_value = math.inf
+            best_node = cls.open[0]
+            best_f_value = cls.table[cls.open[0]][2]
 
-            for node in cls.open:
+            for node in cls.open[1:]:
                 if cls.table[node][2] < best_f_value:
                     best_node = node
                     best_f_value = cls.table[node][2]
      
-            current_node = int(best_node)
+            current_node = best_node
 
         node = cls.end_node
         Path = [cls.Coordinate(node)]
@@ -806,17 +794,17 @@ class Pixelate():
             raise ValueError("move cannot take value other than ['F', 'B', 'L', 'R']")
 
         if move == "F" or move == "B":
-            speed = int(min(10, max(factor - 14, 4)))
+            speed = int(min(10, max(factor - 14, 5)))
 
             if move == "F":
                 cls.env.move_husky(speed, speed, speed, speed)
             elif move == "B":
                 cls.env.move_husky(-speed, -speed, -speed, -speed)
 
-            for _ in range(int(min(4, factor - 11))):
+            for _ in range(int(min(5, factor - 11))):
                 p.stepSimulation()
         elif move == "L" or move == "R":
-            speed = int(min(23, factor + 2))
+            speed = int(min(23, factor + 4))
 
             if move == "L":
                 cls.env.move_husky(-speed, speed, -speed, speed)

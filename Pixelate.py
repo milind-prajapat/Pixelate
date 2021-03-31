@@ -27,7 +27,7 @@ from termcolor import colored
 
 class Pixelate():
     @classmethod
-    def __init__(cls, n_rows, n_cols, env_name, aruco_dict, aruco_id, write = False):
+    def __init__(cls, n_rows, n_cols, env_name, aruco_dict, aruco_id, write = False, filename = "output.mkv", codec = "X264", fps = 15):
         """
         initializes and computes the essential variables, interpretation_dict, color_dict, size of the arena, size of the additional area to remove and starting coordinate of the bot, also calls the Compute_Arena to compute the arena array
 
@@ -43,12 +43,19 @@ class Pixelate():
             dictionary of the aruco marker
         aruco_id : int
             id of the aruco marker
-        write: bool, optional (the default is False, which implies not to write the frames)
-            if true, writes the frames and saves them into a video
-                     file name: output.mp4
-                     video codec: H264
-                     fps: 15
-                     screen size: same as the size of the cropped image if cropping done else same as the size of the gym environment image
+        write : bool, optional (the default is False, which implies not to write the frames)
+            if true, writes the frames and saves them into the video, screen size is same as the size of the gym environment image
+        filename : str, optional (the default is output.mkv)
+            filename of the video, also include the path if you want to save the video at different location, by default it saves it in the current working directory
+        codec : str must have length of exactly four, optional (the default is X264)
+            codec of the video, list of supported codec can be found at: https://www.fourcc.org/codecs.php
+        fps : int
+            number of frames per second to write in the video
+
+        Warnings
+        --------
+        OpenCV Exception: if codec given is incorrect, unsupported, not installed or missing, video writing will not work at all
+
         Raises
         ------
         TypeError
@@ -77,11 +84,26 @@ class Pixelate():
         if not isinstance(aruco_dict, int):
             raise TypeError("aruco_dict must be an int instance")
 
-        if aruco_dict not in [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]:
+        if not aruco_dict in [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]:
             raise ValueError("aruco_dict cannot take value other than [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]")
 
         if not isinstance(aruco_id, int):
             raise TypeError("aruco_id must be an int instance")
+
+        if not isinstance(write, bool):
+            raise TypeError("write must be a bool instance")
+
+        if not isinstance(filename, str):
+            raise TypeError("filename must be a str instance")
+
+        if not isinstance(codec, str):
+            raise TypeError("codec must be a str instance")
+
+        if not len(codec) == 4:
+             raise ValueError("codec must have length of exactly four")
+
+        if not isinstance(fps, int):
+            raise TypeError("fps must be an int instance")
 
         cls.env = gym.make(env_name)
 
@@ -100,6 +122,10 @@ class Pixelate():
         cls.writer = None
 
         img = cls.Image()
+
+        if write:
+            cls.writer = cv2.VideoWriter(filename, cv2.VideoWriter_fourcc(*codec), fps, (img.shape[1],img.shape[0]))
+
         r = cv2.selectROI(img)
 
         if not r == (0,0,0,0):
@@ -109,9 +135,6 @@ class Pixelate():
         else:
             cls.size = np.array([img.shape[1], img.shape[0]], dtype = np.int)
             cls.thickness = np.array([0, 0], dtype = np.int)
-
-        if write:
-            cls.writer = cv2.VideoWriter("output.mp4", cv2.VideoWriter_fourcc(*"H264"), 15.0, (cls.size[0],cls.size[1]))
 
         cls.color_dict = {}
 
@@ -135,7 +158,7 @@ class Pixelate():
     @classmethod
     def Image(cls):
         """
-        captures the gym environment RGB image, also writes the frames into a video if write was true
+        captures the gym environment RGB image, also writes the frames into the video if write was true
 
         Returns
         -------
@@ -145,7 +168,7 @@ class Pixelate():
         img = cls.env.camera_feed()
 
         if cls.writer:
-            cls.writer.write(img[cls.thickness[1]:cls.thickness[1] + cls.size[1], cls.thickness[0]:cls.thickness[0] + cls.size[0]])
+            cls.writer.write(img)
 
         return img
 

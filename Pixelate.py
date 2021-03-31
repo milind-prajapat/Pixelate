@@ -101,7 +101,6 @@ class Pixelate():
 
         img = cls.Image()
         r = cv2.selectROI(img)
-        cv2.destroyAllWindows()
 
         if not r == (0,0,0,0):
             crop = img[int(r[1]):int(r[1] + r[3]), int(r[0]):int(r[0] + r[2])]
@@ -120,13 +119,14 @@ class Pixelate():
             print(colored(f"Select {color} Color", "grey", "on_cyan"))
 
             r = cv2.selectROI(img)
-            cv2.destroyAllWindows()
 
             crop = img[int(r[1]):int(r[1] + r[3]), int(r[0]):int(r[0] + r[2])]
             lower = np.array([crop[:,:,0].min(), crop[:,:,1].min(), crop[:,:,2].min()], dtype = np.int)
             upper = np.array([crop[:,:,0].max(), crop[:,:,1].max(), crop[:,:,2].max()], dtype = np.int)
 
             cls.color_dict[color] = np.array([lower, upper], np.int)
+
+        cv2.destroyAllWindows()
         
         cls.start, _, _ = cls.Bot_Coordinates()
 
@@ -808,17 +808,17 @@ class Pixelate():
             raise ValueError("move cannot take value other than ['F', 'B', 'L', 'R']")
 
         if move == "F" or move == "B":
-            speed = int(min(10, max(factor - 14, 5)))
+            speed = int(min(10, max(factor - 14, 4)))
 
             if move == "F":
                 cls.env.move_husky(speed, speed, speed, speed)
             elif move == "B":
                 cls.env.move_husky(-speed, -speed, -speed, -speed)
 
-            for _ in range(int(min(5, factor - 11))):
+            for _ in range(int(min(4, factor - 11))):
                 p.stepSimulation()
         elif move == "L" or move == "R":
-            speed = int(min(23, factor + 4))
+            speed = int(min(23, factor + 2))
 
             if move == "L":
                 cls.env.move_husky(-speed, speed, -speed, speed)

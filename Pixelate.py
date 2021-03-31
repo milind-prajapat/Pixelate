@@ -26,6 +26,7 @@ from collections import Counter
 from termcolor import colored
 
 class Pixelate():
+
     @classmethod
     def __init__(cls, n_rows, n_cols, env_name, aruco_dict, aruco_id, write = False, filename = "output.mp4", codec = "H264", fps = 15):
         """
@@ -142,8 +143,8 @@ class Pixelate():
             print(colored(f"Select {color} Color", "grey", "on_cyan"))
 
             r = cv2.selectROI(img)
-
             crop = img[int(r[1]):int(r[1] + r[3]), int(r[0]):int(r[0] + r[2])]
+
             lower = np.array([crop[:,:,0].min(), crop[:,:,1].min(), crop[:,:,2].min()], dtype = np.int)
             upper = np.array([crop[:,:,0].max(), crop[:,:,1].max(), crop[:,:,2].max()], dtype = np.int)
 
@@ -165,6 +166,7 @@ class Pixelate():
         numpy.ndarray of dtype int with shape same as the size of the image
             image captured from the RGB camera of the gym environment
         """
+
         img = cls.env.camera_feed()
 
         if cls.writer:
@@ -180,6 +182,7 @@ class Pixelate():
 
         cls.env.remove_car()
         cls.env.respawn_car()
+
         _ = cls.Image()
     
     @classmethod
@@ -282,6 +285,7 @@ class Pixelate():
         
         for index, corner in enumerate(corners):
             id = ids[index][0]
+
             if id == 107:
                 position = np.array([(corner[0][0][0] + corner[0][2][0]) / 2, (corner[0][0][1] + corner[0][2][1]) / 2], dtype = np.int)
                 position_node = cls.Grid_Coordinate(position)             
@@ -840,6 +844,7 @@ class Pixelate():
 
             for _ in range(int(min(5, factor - 11))):
                 p.stepSimulation()
+
         elif move == "L" or move == "R":
             speed = int(min(20, factor + 2))
 

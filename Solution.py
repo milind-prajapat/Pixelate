@@ -2,7 +2,7 @@ from termcolor import colored
 from Pixelate import Pixelate
 
 if __name__ == "__main__":
-    Pixelate(12, 12, "pix_sample_arena-v0", 16, 107)
+    Pixelate(12, 12, "pix_sample_arena-v0", 16, 107, write = True)
     
     current_position = Pixelate.start
     while Pixelate.info_dict["Pink"].shape[0] != 0:

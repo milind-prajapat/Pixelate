@@ -27,7 +27,7 @@ from termcolor import colored
 
 class Pixelate():
     @classmethod
-    def __init__(cls, n_rows, n_cols, env_name, aruco_dict, aruco_id):
+    def __init__(cls, n_rows, n_cols, env_name, aruco_dict, aruco_id, write = False):
         """
         initializes and computes the essential variables, interpretation_dict, color_dict, size of the arena, size of the additional area to remove and starting coordinate of the bot, also calls the Compute_Arena to compute the arena array
 
@@ -43,7 +43,12 @@ class Pixelate():
             dictionary of the aruco marker
         aruco_id : int
             id of the aruco marker
-
+        write: bool, optional (the default is False, which implies not to write the frames)
+            if true, writes the frames and saves them into a video
+                     file name: output.mp4
+                     video codec: H264
+                     fps: 15
+                     screen size: same as the size of the cropped image if cropping done else same as the size of the gym environment image
         Raises
         ------
         TypeError
@@ -77,7 +82,7 @@ class Pixelate():
 
         if not isinstance(aruco_id, int):
             raise TypeError("aruco_id must be an int instance")
-        
+
         cls.env = gym.make(env_name)
 
         cls.n_rows = n_rows
@@ -92,6 +97,8 @@ class Pixelate():
         print(colored("Instructions:", "grey", "on_cyan"))
         print(colored("Crop The Image To Arena Size, press c to cancel if cropping is not required", "grey", "on_cyan"))
 
+        cls.writer = None
+
         img = cls.Image()
         r = cv2.selectROI(img)
         cv2.destroyAllWindows()
@@ -103,6 +110,9 @@ class Pixelate():
         else:
             cls.size = np.array([img.shape[1], img.shape[0]], dtype = np.int)
             cls.thickness = np.array([0, 0], dtype = np.int)
+
+        if write:
+            cls.writer = cv2.VideoWriter("output.mp4", cv2.VideoWriter_fourcc(*"H264"), 15.0, (cls.size[0],cls.size[1]))
 
         cls.color_dict = {}
 
@@ -125,15 +135,19 @@ class Pixelate():
     @classmethod
     def Image(cls):
         """
-        captures the gym environment RGB image
+        captures the gym environment RGB image, also writes the frames into a video if write was true
 
         Returns
         -------
         numpy.ndarray of dtype int with shape same as the size of the image
             image captured from the RGB camera of the gym environment
         """
+        img = cls.env.camera_feed()
 
-        return cls.env.camera_feed()
+        if cls.writer:
+            cls.writer.write(img[cls.thickness[1]:cls.thickness[1] + cls.size[1], cls.thickness[0]:cls.thickness[0] + cls.size[0]])
+
+        return img
 
     @classmethod
     def Respawn_Bot(cls):
@@ -879,6 +893,9 @@ class Pixelate():
                 cls.info_dict["Pink"] = np.delete(cls.info_dict["Pink"], index, 0)
                     
                 cls.info_dict["Pink"] = np.array(sorted(cls.info_dict["Pink"], key = lambda coordinate : cls.Euclidean_Distance(coordinate, bot_coordinate)), dtype = np.int)
+
+        if Pixelate.info_dict["Pink"].shape[0] == 0:
+            cls.writer.release()
 
     @classmethod
     def Manual_Override(cls):

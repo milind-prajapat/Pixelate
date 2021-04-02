@@ -345,7 +345,7 @@ class Pixelate():
                             Point_1 = sorted(contour.reshape(-1,2), key = lambda coordinate : sum(coordinate))[0]
                             Point_2 = sorted(contour.reshape(-1,2), key = lambda coordinate : sum(coordinate), reverse = True)[0]
                             
-                            cls.arena[cx][cy] = cls.interpretation_dict[triangle_dict[np.array((np.abs(np.array([x - Point_1[0], y - Point_2[1], x - Point_2[0],  y - Point_1[1]])) < 4.0).nonzero()).T.reshape(-1)[0]]]
+                            cls.arena[cx][cy] *= cls.interpretation_dict[triangle_dict[np.array((np.abs(np.array([x - Point_1[0], y - Point_2[1], x - Point_2[0],  y - Point_1[1]])) < 4.0).nonzero()).T.reshape(-1)[0]]]
         
         cls.arena[cls.start[0]][cls.start[1]] = cls.interpretation_dict["Dark Green"]
         

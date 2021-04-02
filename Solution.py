@@ -22,5 +22,5 @@ if __name__ == "__main__":
 
         print("\n")
 
-    print(colored("Press Enter to Exit", "grey", "on_cyan"))
+    print(colored("Press any key to exit", "grey", "on_cyan"))
     input()

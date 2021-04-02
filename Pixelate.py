@@ -19,7 +19,7 @@ import gym
 import math
 import numpy as np
 import pybullet as p
-import pix_sample_arena
+import pix_main_arena
 
 from cv2 import aruco
 from collections import Counter
@@ -277,7 +277,7 @@ class Pixelate():
         Raises
         ------
         RuntimeError
-            if aruco is not found in the cameral image
+            if aruco with given id is not found in the cameral image
         """
 
         gray = cv2.cvtColor(cls.Image(), cv2.COLOR_BGR2GRAY)
@@ -293,14 +293,7 @@ class Pixelate():
 
                 return position_node, position, bot_vector
 
-        for index, corner in enumerate(rejected_corners):
-            position = np.array([(corner[0][0][0] + corner[0][2][0]) / 2, (corner[0][0][1] + corner[0][2][1]) / 2], dtype = np.int)
-            position_node = cls.Grid_Coordinate(position)             
-            bot_vector = np.array([(corner[0][0][0] + corner[0][1][0] - corner[0][2][0] - corner[0][3][0]) / 2, (corner[0][0][1] + corner[0][1][1] - corner[0][2][1] - corner[0][3][1]) / 2], dtype = np.int)
-
-            return position_node, position, bot_vector
-
-        raise RuntimeError(f"aruco not found in the cameral image")
+        raise RuntimeError(f"aruco with id {cls.aruco_id} not found in the cameral image")
 
     @classmethod
     def Compute_Arena(cls):

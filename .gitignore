@@ -9,8 +9,8 @@
 *.user
 *.userosscache
 *.sln.docstates
-*.ipynb
-*.ipynb_checkpoints
+*Pixelate_Main_Arena
+*Pixelate_Sample_Arena
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs

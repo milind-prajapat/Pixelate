@@ -20,6 +20,7 @@ import math
 import numpy as np
 import pybullet as p
 import pix_main_arena
+import pix_sample_arena
 
 from cv2 import aruco
 from collections import Counter
@@ -309,6 +310,8 @@ class Pixelate():
         img = cls.Image()
         cls.arena = np.zeros([cls.n_rows, cls.n_cols], dtype = np.int)
 
+        triangle_dict = {0 : "Blue Triangle 0", 1 : "Blue Triangle 90", 2 : "Blue Triangle 180", 3 : "Blue Triangle 270"}
+
         for color in ["White", "Green", "Yellow", "Red", "Pink", "Cyan", "Blue"]:
             lower, upper = cls.color_dict[color]
             mask = cv2.inRange(img, lower - 10, upper + 10)
@@ -340,36 +343,10 @@ class Pixelate():
                         elif ratio > 0.75:
                             cls.arena[cx][cy] *= cls.interpretation_dict["Blue Circle"] 
                         else:
-                            x_coordinates, y_coordinates = contour.reshape(-1,2).T
+                            Point_1 = sorted(contour.reshape(-1,2), key = lambda coordinate : sum(coordinate))[0]
+                            Point_2 = sorted(contour.reshape(-1,2), key = lambda coordinate : sum(coordinate), reverse = True)[0]
                             
-                            x_dict = dict(Counter(x_coordinates))
-                            x_key, x_value = 0, 0
-                            for key in x_dict:
-                                if x_dict[key] > x_value:
-                                    x_key, x_value = key, x_dict[key]
-
-                            y_dict = dict(Counter(y_coordinates))
-                            y_key, y_value = 0, 0
-                            for key in y_dict:
-                                if y_dict[key] > y_value:
-                                    y_key, y_value = key, y_dict[key]
-
-                            if x_value > y_value:
-                                for key in x_dict:
-                                    if abs(key - x_key) > 6 and key > x_key:
-                                        cls.arena[cx][cy] *= cls.interpretation_dict["Blue Triangle 90"]
-                                        break
-                                    elif abs(key - x_key) > 6 and key < x_key:
-                                        cls.arena[cx][cy] *= cls.interpretation_dict["Blue Triangle 270"]
-                                        break
-                            else:
-                                for key in y_dict:
-                                    if abs(key - y_key) > 6 and key > y_key:
-                                        cls.arena[cx][cy] *= cls.interpretation_dict["Blue Triangle 180"]
-                                        break
-                                    elif abs(key - y_key) > 6 and key < y_key:
-                                        cls.arena[cx][cy] *= cls.interpretation_dict["Blue Triangle 0"]
-                                        break
+                            cls.arena[cx][cy] = cls.interpretation_dict[triangle_dict[np.array((np.abs(np.array([x - Point_1[0], y - Point_2[1], x - Point_2[0],  y - Point_1[1]])) < 4.0).nonzero()).T.reshape(-1)[0]]]
         
         cls.arena[cls.start[0]][cls.start[1]] = cls.interpretation_dict["Dark Green"]
         

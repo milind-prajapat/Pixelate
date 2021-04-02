@@ -915,7 +915,7 @@ class Pixelate():
                     
                 cls.info_dict["Pink"] = np.array(sorted(cls.info_dict["Pink"], key = lambda coordinate : cls.Euclidean_Distance(coordinate, bot_coordinate)), dtype = np.int)
 
-        if Pixelate.info_dict["Pink"].shape[0] == 0:
+        if cls.writer and Pixelate.info_dict["Pink"].shape[0] == 0:
             cls.writer.release()
 
     @classmethod

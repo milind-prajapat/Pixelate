@@ -463,12 +463,12 @@ class Pixelate():
                     if ratio > 0.9:
                         cls.arena[cx][cy] *= cls.interpretation_dict["Blue Square"]
 
-                        index = np.flatnonzero((cls.info_dict["Pink"] == coordinate).all(1))[0]
+                        index = np.array((cls.info_dict["Pink"] == coordinate).all(1).nonzero()).T.reshape(-1)[0]
                         cls.info_dict["Reveal"][index] = "Blue Square"
                     elif ratio > 0.75:
                         cls.arena[cx][cy] *= cls.interpretation_dict["Blue Circle"]
 
-                        index = np.flatnonzero((cls.info_dict["Pink"] == coordinate).all(1))[0]
+                        index = np.array((cls.info_dict["Pink"] == coordinate).all(1).nonzero()).T.reshape(-1)[0]
                         cls.info_dict["Reveal"][index] = "Blue Circle"
                     break
 

@@ -281,7 +281,7 @@ class Pixelate():
         """
 
         gray = cv2.cvtColor(cls.Image(), cv2.COLOR_BGR2GRAY)
-        corners, ids, rejected_corners = aruco.detectMarkers(gray, cls.aruco_dict, parameters = aruco.DetectorParameters_create())
+        corners, ids, _ = aruco.detectMarkers(gray, cls.aruco_dict, parameters = aruco.DetectorParameters_create())
         
         for index, corner in enumerate(corners):
             id = ids[index][0]

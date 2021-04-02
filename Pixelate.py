@@ -23,7 +23,6 @@ import pix_main_arena
 import pix_sample_arena
 
 from cv2 import aruco
-from collections import Counter
 from termcolor import colored
 
 class Pixelate():

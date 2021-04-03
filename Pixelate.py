@@ -22,8 +22,8 @@ import pybullet as p
 import pix_main_arena
 import pix_sample_arena
 
+from os import system
 from cv2 import aruco
-from termcolor import colored
 
 class Pixelate():
 
@@ -108,6 +108,8 @@ class Pixelate():
 
         cls.env = gym.make(env_name)
 
+        system('cls')
+
         cls.n_rows = n_rows
         cls.n_cols = n_cols
 
@@ -117,8 +119,9 @@ class Pixelate():
         cls.interpretation_dict = {"Black": 0, "White": 1, "Green": 2, "Yellow": 3, "Red": 4, "Pink": 5, "Cyan": 7, "Blue Square": 11, "Blue Circle": 13,
                                     "Blue Triangle 0": 17, "Blue Triangle 90": 19, "Blue Triangle 180": 23, "Blue Triangle 270": 29, "Dark Green": -1}
         
-        print(colored("Instructions:", "grey", "on_cyan"))
-        print(colored("Crop The Image To Arena Size, press c to cancel if cropping is not required", "grey", "on_cyan"))
+        
+        # print("Instructions:")
+        # print("Crop The Image To Arena Size, press c to cancel if cropping is not required")
 
         cls.writer = None
 
@@ -127,35 +130,46 @@ class Pixelate():
         if write:
             cls.writer = cv2.VideoWriter(filename, cv2.VideoWriter_fourcc(*codec), fps, (img.shape[1],img.shape[0]))
 
-        r = cv2.selectROI(img)
+        # r = cv2.selectROI(img)
 
-        if not r == (0,0,0,0):
-            crop = img[int(r[1]):int(r[1] + r[3]), int(r[0]):int(r[0] + r[2])]
-            cls.size = np.array([crop.shape[1], crop.shape[0]], dtype = np.int)
-            cls.thickness = np.array([r[0], r[1]], dtype = np.int)
-        else:
-            cls.size = np.array([img.shape[1], img.shape[0]], dtype = np.int)
-            cls.thickness = np.array([0, 0], dtype = np.int)
+        # if not r == (0,0,0,0):
+        #     crop = img[int(r[1]):int(r[1] + r[3]), int(r[0]):int(r[0] + r[2])]
+        #     cls.size = np.array([crop.shape[1], crop.shape[0]], dtype = np.int)
+        #     cls.thickness = np.array([r[0], r[1]], dtype = np.int)
+        # else:
+        #     cls.size = np.array([img.shape[1], img.shape[0]], dtype = np.int)
+        #     cls.thickness = np.array([0, 0], dtype = np.int)
 
-        cls.color_dict = {}
+        cls.thickness = np.array([37, 38], dtype = np.int)
+        cls.size = np.array([645, 643], dtype = np.int)
 
-        for color in ["White", "Green", "Yellow", "Red", "Pink", "Cyan", "Blue"]:
-            print(colored(f"Select {color} Color", "grey", "on_cyan"))
+        # cls.color_dict = {}
+        
+        # for color in ["White", "Green", "Yellow", "Red", "Pink", "Cyan", "Blue"]:
+        #     print(f"Select {color} Color")
 
-            r = cv2.selectROI(img)
-            crop = img[int(r[1]):int(r[1] + r[3]), int(r[0]):int(r[0] + r[2])]
+        #     r = cv2.selectROI(img)
+        #     crop = img[int(r[1]):int(r[1] + r[3]), int(r[0]):int(r[0] + r[2])]
 
-            lower = np.array([crop[:,:,0].min(), crop[:,:,1].min(), crop[:,:,2].min()], dtype = np.int)
-            upper = np.array([crop[:,:,0].max(), crop[:,:,1].max(), crop[:,:,2].max()], dtype = np.int)
+        #     lower = np.array([crop[:,:,0].min(), crop[:,:,1].min(), crop[:,:,2].min()], dtype = np.int)
+        #     upper = np.array([crop[:,:,0].max(), crop[:,:,1].max(), crop[:,:,2].max()], dtype = np.int)
 
-            cls.color_dict[color] = np.array([lower, upper], np.int)
+        #     cls.color_dict[color] = np.array([lower, upper], np.int)
 
-        cv2.destroyAllWindows()
+        # cv2.destroyAllWindows()
+
+        cls.color_dict = {'White' : np.array([[227, 227, 227], [227, 227, 227]], dtype = np.int),
+                          'Green' : np.array([[  0, 227,   0], [  0, 227,   0]], dtype = np.int),
+                          'Yellow': np.array([[  0, 227, 227], [  0, 227, 227]], dtype = np.int),
+                          'Red'   : np.array([[  0,   0, 145], [  0,   0, 145]], dtype = np.int), 
+                          'Pink'  : np.array([[211, 114, 211], [211, 114, 211]], dtype = np.int),
+                          'Cyan'  : np.array([[227, 227,   0], [227, 227,   0]], dtype = np.int),
+                          'Blue'  : np.array([[227,   0,   0], [227,   0,   0]], dtype = np.int)}
         
         cls.start, _, _ = cls.Bot_Coordinates()
 
         cls.Compute_Arena()
-
+    
     @classmethod
     def Image(cls):
         """
@@ -804,7 +818,7 @@ class Pixelate():
             raise ValueError("move cannot take value other than ['F', 'B', 'L', 'R']")
 
         if move == "F" or move == "B":
-            speed = int(min(10, max(factor - 12, 5)))
+            speed = int(min(10, max(factor - 14, 5)))
 
             if move == "F":
                 cls.env.move_husky(speed, speed, speed, speed)

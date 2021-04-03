@@ -1,26 +1,46 @@
-from termcolor import colored
 from Pixelate import Pixelate
 
 if __name__ == "__main__":
     Pixelate(12, 12, "pix_main_arena-v0", 16, 107)
-    
+
     current_position = Pixelate.start
+    max_number_of_patient = Pixelate.info_dict["Pink"].shape[0]
+    
+    print(f"Started : {current_position}")
+    print("\n")
 
     while Pixelate.info_dict["Pink"].shape[0] != 0:
+        
+        Path = Pixelate.Path(current_position, Pixelate.info_dict["Pink"][0])
 
-        Pixelate.Follow_Path(Pixelate.Path(current_position, Pixelate.info_dict["Pink"][0])[1:-1])
-        print(colored("Picked", "grey", "on_cyan"))
-
-        Pixelate.Follow_Path(Pixelate.info_dict["Pink"][0].reshape(1,2))
-
-        current_position = Pixelate.info_dict[Pixelate.info_dict["Reveal"][0]]
-
-        Pixelate.Follow_Path(Pixelate.Path(Pixelate.info_dict["Pink"][0], Pixelate.info_dict[Pixelate.info_dict["Reveal"][0]])[1:-1])
-        print(colored("Dropped", "grey", "on_cyan"))
-
-        Pixelate.Follow_Path(current_position.reshape(1,2))
-
+        print(f"Going to pick patient number {max_number_of_patient - Pixelate.info_dict['Pink'].shape[0] + 1}")
+        print(Path)
         print("\n")
 
-    print(colored("Press any key to exit", "grey", "on_cyan"))
-    input()
+        Pixelate.Follow_Path(Path[1:-1])
+
+        print(f"Patient number {max_number_of_patient - Pixelate.info_dict['Pink'].shape[0] + 1} picked")
+        print("\n")
+
+        Pixelate.Follow_Path(Path[-1].reshape(1,2))
+
+        current_position = Path[-1].reshape(2)
+        Path = Pixelate.Path(current_position, Pixelate.info_dict[Pixelate.info_dict["Reveal"][0]])
+
+        print(f"Going to drop patient number {max_number_of_patient - Pixelate.info_dict['Pink'].shape[0] + 1}")
+        print(Path)
+        print("\n")
+
+        Pixelate.Follow_Path(Path[1:-1])
+
+        print(f"Patient number {max_number_of_patient - Pixelate.info_dict['Pink'].shape[0] } dropped")
+        print("\n")
+
+        Pixelate.Follow_Path(Path[-1].reshape(1,2))
+
+        current_position = Path[-1].reshape(2)
+
+        print(f"Patient number {max_number_of_patient - Pixelate.info_dict['Pink'].shape[0]} completed")
+        print("\n")
+
+    input("Press any key to exit")

@@ -7,7 +7,6 @@ if __name__ == "__main__":
     max_number_of_patient = Pixelate.info_dict["Pink"].shape[0]
     
     print(f"Started : {current_position}")
-    print("\n")
 
     while Pixelate.info_dict["Pink"].shape[0] != 0:
         
@@ -15,12 +14,10 @@ if __name__ == "__main__":
 
         print(f"Going to pick patient number {max_number_of_patient - Pixelate.info_dict['Pink'].shape[0] + 1}")
         print(Path)
-        print("\n")
 
         Pixelate.Follow_Path(Path[1:-1])
 
         print(f"Patient number {max_number_of_patient - Pixelate.info_dict['Pink'].shape[0] + 1} picked")
-        print("\n")
 
         Pixelate.Follow_Path(Path[-1].reshape(1,2))
 
@@ -29,18 +26,15 @@ if __name__ == "__main__":
 
         print(f"Going to drop patient number {max_number_of_patient - Pixelate.info_dict['Pink'].shape[0] + 1}")
         print(Path)
-        print("\n")
 
         Pixelate.Follow_Path(Path[1:-1])
 
         print(f"Patient number {max_number_of_patient - Pixelate.info_dict['Pink'].shape[0] } dropped")
-        print("\n")
 
         Pixelate.Follow_Path(Path[-1].reshape(1,2))
 
         current_position = Path[-1].reshape(2)
 
         print(f"Patient number {max_number_of_patient - Pixelate.info_dict['Pink'].shape[0]} completed")
-        print("\n")
 
     input("Press any key to exit")

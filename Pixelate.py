@@ -1,18 +1,18 @@
 import warnings
 warnings.filterwarnings('ignore')
 
-# import pretty_errors
-# pretty_errors.configure(separator_character = '-',
-#                         filename_display    = pretty_errors.FILENAME_EXTENDED,
-#                         line_number_first   = True,
-#                         display_link        = True,
-#                         lines_before        = 5,
-#                         lines_after         = 2,
-#                         line_color          = pretty_errors.RED + '> ' + pretty_errors.default_config.line_color,
-#                         code_color          = '  ' + pretty_errors.default_config.line_color,
-#                         truncate_code       = True,
-#                         display_locals      = True)
-# pretty_errors.blacklist('c:/python')
+import pretty_errors
+pretty_errors.configure(separator_character = '-',
+                        filename_display    = pretty_errors.FILENAME_EXTENDED,
+                        line_number_first   = True,
+                        display_link        = True,
+                        lines_before        = 5,
+                        lines_after         = 2,
+                        line_color          = pretty_errors.RED + '> ' + pretty_errors.default_config.line_color,
+                        code_color          = '  ' + pretty_errors.default_config.line_color,
+                        truncate_code       = True,
+                        display_locals      = True)
+pretty_errors.blacklist('c:/python')
 
 import cv2
 import gym
@@ -20,7 +20,7 @@ import math
 import numpy as np
 import pybullet as p
 import pix_main_arena
-# import pix_sample_arena
+import pix_sample_arena
 
 from os import system
 from cv2 import aruco
@@ -38,7 +38,7 @@ class Pixelate():
             number of rows in the grid
         n_cols : int that must be greater than zero
             number of columns in the grid
-        env_name : str
+        env_name : {"pix-sample-arena-v0", "pix-main-arena-v0"}
             name of the gym environment
         aruco_dict : {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20}
             dictionary of the aruco marker
@@ -120,8 +120,8 @@ class Pixelate():
                                     "Blue Triangle 0": 17, "Blue Triangle 90": 19, "Blue Triangle 180": 23, "Blue Triangle 270": 29, "Dark Green": -1}
         
         
-        # print("Instructions:")
-        # print("Crop The Image To Arena Size, press c to cancel if cropping is not required")
+        print("Instructions:")
+        print("Crop The Image To Arena Size, press c to cancel if cropping is not required")
 
         cls.writer = None
 
@@ -130,41 +130,32 @@ class Pixelate():
         if write:
             cls.writer = cv2.VideoWriter(filename, cv2.VideoWriter_fourcc(*codec), fps, (img.shape[1],img.shape[0]))
 
-        # r = cv2.selectROI(img)
+        r = cv2.selectROI(img)
 
-        # if not r == (0,0,0,0):
-        #     crop = img[int(r[1]):int(r[1] + r[3]), int(r[0]):int(r[0] + r[2])]
-        #     cls.size = np.array([crop.shape[1], crop.shape[0]], dtype = np.int)
-        #     cls.thickness = np.array([r[0], r[1]], dtype = np.int)
-        # else:
-        #     cls.size = np.array([img.shape[1], img.shape[0]], dtype = np.int)
-        #     cls.thickness = np.array([0, 0], dtype = np.int)
+        if not r == (0,0,0,0):
+            crop = img[int(r[1]):int(r[1] + r[3]), int(r[0]):int(r[0] + r[2])]
+            cls.size = np.array([crop.shape[1], crop.shape[0]], dtype = np.int)
+            cls.thickness = np.array([r[0], r[1]], dtype = np.int)
+        else:
+            cls.size = np.array([img.shape[1], img.shape[0]], dtype = np.int)
+            cls.thickness = np.array([0, 0], dtype = np.int)
 
-        cls.thickness = np.array([37, 38], dtype = np.int)
-        cls.size = np.array([645, 643], dtype = np.int)
-
-        # cls.color_dict = {}
+        cls.color_dict = {}
         
-        # for color in ["White", "Green", "Yellow", "Red", "Pink", "Cyan", "Blue"]:
-        #     print(f"Select {color} Color")
+        for color in ["White", "Green", "Yellow", "Red", "Pink", "Cyan", "Blue"]:
+            print(f"Select {color} Color")
 
-        #     r = cv2.selectROI(img)
-        #     crop = img[int(r[1]):int(r[1] + r[3]), int(r[0]):int(r[0] + r[2])]
+            r = cv2.selectROI(img)
+            crop = img[int(r[1]):int(r[1] + r[3]), int(r[0]):int(r[0] + r[2])]
 
-        #     lower = np.array([crop[:,:,0].min(), crop[:,:,1].min(), crop[:,:,2].min()], dtype = np.int)
-        #     upper = np.array([crop[:,:,0].max(), crop[:,:,1].max(), crop[:,:,2].max()], dtype = np.int)
+            lower = np.array([crop[:,:,0].min(), crop[:,:,1].min(), crop[:,:,2].min()], dtype = np.int)
+            upper = np.array([crop[:,:,0].max(), crop[:,:,1].max(), crop[:,:,2].max()], dtype = np.int)
 
-        #     cls.color_dict[color] = np.array([lower, upper], np.int)
+            cls.color_dict[color] = np.array([lower, upper], np.int)
 
-        # cv2.destroyAllWindows()
+        cv2.destroyAllWindows()
 
-        cls.color_dict = {'White' : np.array([[227, 227, 227], [227, 227, 227]], dtype = np.int),
-                          'Green' : np.array([[  0, 227,   0], [  0, 227,   0]], dtype = np.int),
-                          'Yellow': np.array([[  0, 227, 227], [  0, 227, 227]], dtype = np.int),
-                          'Red'   : np.array([[  0,   0, 145], [  0,   0, 145]], dtype = np.int), 
-                          'Pink'  : np.array([[211, 114, 211], [211, 114, 211]], dtype = np.int),
-                          'Cyan'  : np.array([[227, 227,   0], [227, 227,   0]], dtype = np.int),
-                          'Blue'  : np.array([[227,   0,   0], [227,   0,   0]], dtype = np.int)}
+        system('cls')
         
         cls.start, _, _ = cls.Bot_Coordinates()
 

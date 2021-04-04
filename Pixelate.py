@@ -804,25 +804,25 @@ class Pixelate():
             raise ValueError("move cannot take value other than ['F', 'B', 'L', 'R']")
 
         if move == "F" or move == "B":
-            speed = int(min(10, max(factor - 14, 5)))
+            speed = int(min(20, max(factor - 30, 10), max(factor - 15, 5)))
 
             if move == "F":
                 cls.env.move_husky(speed, speed, speed, speed)
             elif move == "B":
                 cls.env.move_husky(-speed, -speed, -speed, -speed)
 
-            for _ in range(int(min(5, factor - 11))):
+            for _ in range(int(min(10, factor - 10))):
                 p.stepSimulation()
 
         elif move == "L" or move == "R":
-            speed = int(min(20, factor + 2))
+            speed = int(min(20, factor))
 
             if move == "L":
                 cls.env.move_husky(-speed, speed, -speed, speed)
             elif move == "R":
                 cls.env.move_husky(speed, -speed, speed, -speed)
 
-            for _ in range(5):
+            for _ in range(int(min(10, factor + 2))):
                 p.stepSimulation()
 
         cls.env.move_husky(0, 0, 0, 0)

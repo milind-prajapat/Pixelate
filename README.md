@@ -16,7 +16,7 @@ You can either run the code directly on visual studio using the file Pixelate.sl
 or just run the file Solution.py.
 All the details are already mentioned in the file Pixelate.py 
 
-##Project Features
+## Project Features
 * Visual representation of the arena and the bot movements are done using pybullet.
 * Image processing technique which is Open Computer Vision is used to manipulate the data( shape, color, aruco detection) in programmable form.
 * The arena is converted into a 2-D matrix. Where each block of the arena is denoted by a particular node number.

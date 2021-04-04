@@ -804,7 +804,7 @@ class Pixelate():
             raise ValueError("move cannot take value other than ['F', 'B', 'L', 'R']")
 
         if move == "F" or move == "B":
-            speed = int(min(20, max(factor - 30, 10), max(factor - 15, 5)))
+            speed = int(min(20, max(factor - 50, 10), max(factor - 30, 5)))
 
             if move == "F":
                 cls.env.move_husky(speed, speed, speed, speed)
@@ -815,14 +815,14 @@ class Pixelate():
                 p.stepSimulation()
 
         elif move == "L" or move == "R":
-            speed = int(min(20, factor))
+            speed = int(min(20, factor - 5))
 
             if move == "L":
                 cls.env.move_husky(-speed, speed, -speed, speed)
             elif move == "R":
                 cls.env.move_husky(speed, -speed, speed, -speed)
 
-            for _ in range(int(min(10, factor + 2))):
+            for _ in range(int(min(10, factor))):
                 p.stepSimulation()
 
         cls.env.move_husky(0, 0, 0, 0)
@@ -865,13 +865,13 @@ class Pixelate():
                 if distance > 12:
                     theta = cls.Angle(bot_vector, np.array([destination[0] - position[0], destination[1] - position[1]], dtype = np.int))
                     
-                    if theta <= 5 and theta >= -5:
+                    if theta <= 10 and theta >= -10:
                         cls.Move_Bot(distance, "F")
                     elif theta < -5 and theta > -125:
                         cls.Move_Bot(-theta, "L")
                     elif theta > 5 and theta < 125:
                         cls.Move_Bot(theta, "R")
-                    elif theta >= 175 or theta <= -175:
+                    elif theta >= 170 or theta <= -170:
                         cls.Move_Bot(distance, "B")
                     elif theta >= 125 and theta < 175:
                         cls.Move_Bot(180 - theta, "L")

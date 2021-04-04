@@ -123,6 +123,14 @@ class Pixelate():
         print("Instructions:")
         print("Crop The Image To Arena Size, press c to cancel if cropping is not required")
 
+        cls.color_dict = {'White' : np.array([[227, 227, 227], [227, 227, 227]], dtype = np.int),
+                          'Green' : np.array([[  0, 227,   0], [  0, 227,   0]], dtype = np.int),
+                          'Yellow': np.array([[  0, 227, 227], [  0, 227, 227]], dtype = np.int),
+                          'Red'   : np.array([[  0,   0, 145], [  0,   0, 145]], dtype = np.int),
+                          'Pink'  : np.array([[211, 114, 211], [211, 114, 211]], dtype = np.int),
+                          'Cyan'  : np.array([[227, 227,   0], [227, 227,   0]], dtype = np.int),
+                          'Blue'  : np.array([[227,   0,   0], [227,   0,   0]], dtype = np.int)}
+
         cls.writer = None
 
         img = cls.Image()
@@ -139,19 +147,6 @@ class Pixelate():
         else:
             cls.size = np.array([img.shape[1], img.shape[0]], dtype = np.int)
             cls.thickness = np.array([0, 0], dtype = np.int)
-
-        cls.color_dict = {}
-        
-        for color in ["White", "Green", "Yellow", "Red", "Pink", "Cyan", "Blue"]:
-            print(f"Select {color} Color")
-
-            r = cv2.selectROI(img)
-            crop = img[int(r[1]):int(r[1] + r[3]), int(r[0]):int(r[0] + r[2])]
-
-            lower = np.array([crop[:,:,0].min(), crop[:,:,1].min(), crop[:,:,2].min()], dtype = np.int)
-            upper = np.array([crop[:,:,0].max(), crop[:,:,1].max(), crop[:,:,2].max()], dtype = np.int)
-
-            cls.color_dict[color] = np.array([lower, upper], np.int)
 
         cv2.destroyAllWindows()
 

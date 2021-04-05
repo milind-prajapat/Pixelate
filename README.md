@@ -18,6 +18,7 @@ You can either run the code directly on visual studio using [Pixelate.sln](https
 * The arena was converted into a 2-D matrix where a particular node number denoted each square in the arena.
 * A* algorithm determined the shortest path to reach the destination node. Here, manhattan distance was used as the heuristic measure. Movement through one-ways was considered by disconnecting it from the graph whenever required.
 * The program also supports manual override to run the bot.
+* The bot uses the differential drive for the movements.
 
 ## References
 1. [Run on Pixelate_Main_Arena](https://drive.google.com/file/d/1H9sOwg9ko8G9HRjU_7ucStvyIivzOJvN/view?usp=sharing)

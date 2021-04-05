@@ -20,4 +20,4 @@ You can either run the code directly on visual studio using [Pixelate.sln](https
 * The program also supports manual override to run the bot.
 
 ## References
-[Output Video](https://drive.google.com/file/d/1H9sOwg9ko8G9HRjU_7ucStvyIivzOJvN/view?usp=sharing)
+1. [Run on Pixelate_Main_Arena](https://drive.google.com/file/d/1H9sOwg9ko8G9HRjU_7ucStvyIivzOJvN/view?usp=sharing)

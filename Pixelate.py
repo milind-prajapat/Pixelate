@@ -118,10 +118,6 @@ class Pixelate():
         
         cls.interpretation_dict = {"Black": 0, "White": 1, "Green": 2, "Yellow": 3, "Red": 4, "Pink": 5, "Cyan": 7, "Blue Square": 11, "Blue Circle": 13,
                                     "Blue Triangle 0": 17, "Blue Triangle 90": 19, "Blue Triangle 180": 23, "Blue Triangle 270": 29, "Dark Green": -1}
-        
-        
-        print("Instructions:")
-        print("Crop The Image To Arena Size, press c to cancel if cropping is not required")
 
         cls.color_dict = {'White' : np.array([[227, 227, 227], [227, 227, 227]], dtype = np.int),
                           'Green' : np.array([[  0, 227,   0], [  0, 227,   0]], dtype = np.int),
@@ -137,7 +133,10 @@ class Pixelate():
 
         if write:
             cls.writer = cv2.VideoWriter(filename, cv2.VideoWriter_fourcc(*codec), fps, (img.shape[1],img.shape[0]))
-
+        
+        print("Instructions:")
+        print("Crop The Image To Arena Size, press c to cancel if cropping is not required")
+        
         r = cv2.selectROI(img)
 
         if not r == (0,0,0,0):

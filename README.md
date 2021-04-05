@@ -1,7 +1,7 @@
 # Pixelate
 A project based on image processing and path finding algorithm using pybullet for simulation
 
-This project is based on the instructions given in the following [Problem Statement](https://drive.google.com/file/d/1DETWGOMy4nRsJz9X7VkrQKtws0t4Pp7y/view?usp=sharing).
+This project is based on the instructions given in the following [Problem Statement](https://drive.google.com/file/d/1XZivQZIc6szvCmp2vMksxlliCC4whAkB/view?usp=sharing).
 
 ## Installation Guidelines
 Along with this repository, it is needed to have the following repositories:
@@ -21,4 +21,5 @@ You can either run the code directly on visual studio using [Pixelate.sln](https
 * The bot uses the differential drive for the movements.
 
 ## References
-1. [Run on Pixelate_Main_Arena](https://drive.google.com/file/d/1H9sOwg9ko8G9HRjU_7ucStvyIivzOJvN/view?usp=sharing)
+1. [Run on Pixelate_Sample_Arena](https://drive.google.com/file/d/1Grus2-VQ6b7RzPIfdwOSfPk-CN6LGskj/view?usp=sharing)
+2. [Run on Pixelate_Main_Arena](https://drive.google.com/file/d/1H9sOwg9ko8G9HRjU_7ucStvyIivzOJvN/view?usp=sharing)

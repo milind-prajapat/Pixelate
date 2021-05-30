@@ -10,7 +10,7 @@ Along with this repository, it is needed to have the following repositories:
 
 Follow the steps given in these repositories and install the packages required.
 
-You can then either run the code directly on visual studio using [Pixelate.sln](https://github.com/milind-prajapat/Pixelate/blob/main/Pixelate.sln) or can run [Solution.py](https://github.com/milind-prajapat/Pixelate/blob/main/Solution.py).
+You can then either run the code directly on the visual studio using [Pixelate.sln](https://github.com/milind-prajapat/Pixelate/blob/main/Pixelate.sln) or can run [Solution.py](https://github.com/milind-prajapat/Pixelate/blob/main/Solution.py).
 
 ## Approach
 1. The arena was converted into a 2D matrix using image processing techniques where a particular node number denoted each square of the arena
@@ -25,5 +25,5 @@ You can then either run the code directly on visual studio using [Pixelate.sln](
 4. The program also supports manual override to run the bot
 
 ## References
-1. [Run on Pixelate_Sample_Arena](https://drive.google.com/file/d/1Grus2-VQ6b7RzPIfdwOSfPk-CN6LGskj/view?usp=sharing)
-2. [Run on Pixelate_Main_Arena](https://drive.google.com/file/d/1H9sOwg9ko8G9HRjU_7ucStvyIivzOJvN/view?usp=sharing)
+1. [Run-on Pixelate_Sample_Arena](https://drive.google.com/file/d/1Grus2-VQ6b7RzPIfdwOSfPk-CN6LGskj/view?usp=sharing)
+2. [Run-on Pixelate_Main_Arena](https://drive.google.com/file/d/1H9sOwg9ko8G9HRjU_7ucStvyIivzOJvN/view?usp=sharing)

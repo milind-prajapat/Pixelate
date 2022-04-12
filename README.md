@@ -1,5 +1,5 @@
 # Pixelate
-A Project-Based On Image processing And A-Star Path Finding Algorithm
+An Autonomous Bot Based On Image processing And A-Star Path Finding Algorithm
 
 This project is based on the instructions given in the following [Problem Statement](https://drive.google.com/file/d/1XZivQZIc6szvCmp2vMksxlliCC4whAkB/view?usp=sharing).
 

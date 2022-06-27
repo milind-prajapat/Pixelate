@@ -10,7 +10,7 @@ Along with this repository, it is needed to have the following repositories:
 
 Follow the steps given in these repositories and install the packages required.
 
-You can then either run the code directly on the visual studio using [Pixelate.sln](https://github.com/milind-prajapat/Pixelate/blob/main/Pixelate.sln) or can run [Solution.py](https://github.com/milind-prajapat/Pixelate/blob/main/Solution.py).
+You can then either run the code directly on the visual studio using [Pixelate.sln](https://github.com/milind-prajapat/Pixelate/blob/main/Pixelate.sln) or can run [Pixelate.py](https://github.com/milind-prajapat/Pixelate/blob/main/Solution.py).
 
 ## Approach
 1. The arena was converted into a 2D matrix using image processing techniques where a particular node number denoted each square of the arena

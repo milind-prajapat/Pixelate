@@ -27,3 +27,8 @@ You can then either run the code directly on the visual studio using [Pixelate.s
 ## References
 1. [Run-on Pixelate_Sample_Arena](https://drive.google.com/file/d/1Grus2-VQ6b7RzPIfdwOSfPk-CN6LGskj/view?usp=sharing)
 2. [Run-on Pixelate_Main_Arena](https://drive.google.com/file/d/1H9sOwg9ko8G9HRjU_7ucStvyIivzOJvN/view?usp=sharing)
+
+## Contributors
+1. Milind Prajapat[https://github.com/milind-prajapat]
+2. Megha Garg [https://github.com/tech-wiz18]
+3. Shabari S Nair [https://github.com/Killshot667]

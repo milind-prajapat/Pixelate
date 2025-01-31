@@ -1,7 +1,7 @@
 # Pixelate
 An Autonomous Bot Based On Image processing And A-Star Path Finding Algorithm
 
-This project is based on the instructions given in the following [Problem Statement](https://drive.google.com/file/d/1XZivQZIc6szvCmp2vMksxlliCC4whAkB/view?usp=sharing).
+This project is based on the instructions given in the following [Problem Statement](https://drive.google.com/file/d/1bYLmYExCCZ6ARl8Oy3BshgRfH_QnUFrp/view?usp=drive_link).
 
 ## Installation Guidelines
 Along with this repository, it is needed to have the following repositories:
@@ -25,8 +25,8 @@ You can then either run the code directly on the visual studio using [Pixelate.s
 4. The program also supports manual override to run the bot
 
 ## References
-1. [Run-on Pixelate_Sample_Arena](https://drive.google.com/file/d/1Grus2-VQ6b7RzPIfdwOSfPk-CN6LGskj/view?usp=sharing)
-2. [Run-on Pixelate_Main_Arena](https://drive.google.com/file/d/1H9sOwg9ko8G9HRjU_7ucStvyIivzOJvN/view?usp=sharing)
+1. [Run-on Pixelate_Sample_Arena](https://drive.google.com/file/d/13rWd1DSp0ntp-sJ96k5KPBK7aAD9srVP/view?usp=drive_link)
+2. [Run-on Pixelate_Main_Arena](https://drive.google.com/file/d/1XaKnPurUT6rKtZt3vnyJlb-CvZsrIa0R/view?usp=drive_link)
 
 ## Contributors
 1. [Milind Prajapat](https://github.com/milind-prajapat)
